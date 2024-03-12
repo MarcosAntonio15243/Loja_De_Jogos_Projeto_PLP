@@ -23,7 +23,8 @@ createUsers conn = do
                     \user_email VARCHAR(50) NOT NULL,\
                     \user_senha VARCHAR(50) NOT NULL,\
                     \user_tipo VARCHAR(50) NOT NULL,\
-                    \user_date DATE NOT NULL);"
+                    \user_date DATE NOT NULL,\
+                    \user_saldo FLOAT NOT NULL);"
     return ()
 
 
@@ -40,11 +41,24 @@ createGames conn = do
                     \game_price FLOAT NOT NULL);"
     return ()
 
+createCompras :: Connection -> IO()
+createCompras conn = do
+    execute_ conn "CREATE TABLE IF NOT EXISTS compra (\
+                    \compra_id SERIAL PRIMARY KEY,\
+                    \compra_data DATE NOT NULL,\
+                    \compra_price FLOAT NOT NULL,\
+                    \user_id INT NOT NULL,\
+                    \game_id INT NOT NULL,\
+                    \FOREIGN KEY (user_id) REFERENCES usuario(user_id),\
+                    \FOREIGN KEY (game_id) REFERENCES jogo(game_id));"
+    return ()
+
 iniciandoDatabase :: IO Connection
 iniciandoDatabase = do
     c <- connectionMyDB
     createUsers c
     createGames c
+    createCompras c
     return c
     
     
