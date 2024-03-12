@@ -5,6 +5,7 @@ import Data.Time.Format
 import Data.Time.Clock
 import Data.Int (Int64)
 import Data.Maybe (listToMaybe)
+import Controller.Admin
 
 menuInicial::Connection -> IO()
 menuInicial conn = do
@@ -16,7 +17,7 @@ menuInicial conn = do
     putStrLn "3 - Sair"
     putStrLn ""
     putStrLn "============================================================"
-    putStrLn "Selecione uma opção > "
+    putStr "Selecione uma opção:  "
 
     opcao <- getLine
 
@@ -51,8 +52,10 @@ login conn = do
             Just (id, tipo) -> do
                 if (tipo == "Padrão") then do
                     putStrLn "Padrão"
+                    --tela cliente
                 else do
                     putStrLn "Not padrão"
+                    menuInicialAdmin conn
             Nothing -> do
                 putStrLn "Email ou senha incorretos! Tente novamente.\n"
                 login conn
