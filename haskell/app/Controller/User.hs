@@ -50,9 +50,9 @@ login conn = do
         case userID of
             Just (id, tipo) -> do
                 if (tipo == "Padrão") then do
-                    putStrLn "Padrão"
+                    putStrLn "Padrão" -- Transição para as telas do Usuário Padrão
                 else do
-                    putStrLn "Not padrão"
+                    putStrLn "Not padrão" -- Transição para as telas do Administrador
             Nothing -> do
                 putStrLn "Email ou senha incorretos! Tente novamente.\n"
                 login conn
