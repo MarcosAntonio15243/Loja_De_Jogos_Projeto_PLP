@@ -52,7 +52,7 @@ login conn = do
                 if (tipo == "Padrão") then do
                     putStrLn "Padrão" -- Transição para as telas do Usuário Padrão
                 else do
-                    putStrLn "Not padrão" -- Transição para as telas do Administrador
+                    putStrLn "Administrador" -- Transição para as telas do Administrador
             Nothing -> do
                 putStrLn "Email ou senha incorretos! Tente novamente.\n"
                 login conn
@@ -65,6 +65,8 @@ getUserEmailSenha conn email senha = do
 
 criarConta::Connection->IO()
 criarConta conn = do
+    putStrLn "Nickname:"
+    nickname <- getLine
     putStrLn "Nome:"
     nome <- getLine
     putStrLn "E-mail:"
@@ -74,7 +76,7 @@ criarConta conn = do
     putStrLn "Confirmar Senha:"
     confirmarSenha <- getLine
     putStrLn "============================================================"
-    if (Prelude.null nome || Prelude.null email || Prelude.null senha || Prelude.null confirmarSenha) then do
+    if (Prelude.null nickname || Prelude.null nome || Prelude.null email || Prelude.null senha || Prelude.null confirmarSenha) then do
         putStrLn "Nenhum campo pode estar vazio!"
         putStrLn "Preencha novamente os seus dados:"
         criarConta conn
@@ -83,36 +85,48 @@ criarConta conn = do
         putStrLn "Preencha novamente os seus dados:"
         criarConta conn
     else do
-        emailExistente <- checarEmailExistente conn email
-        if (emailExistente) then do
-            putStrLn "Email já cadastrado!"
-            putStrLn "Preencha novamente utilizando outro endereço de email."
+        nicknameExistente <- checarNicknameExistente conn nickname
+        if (nicknameExistente) then do
+            putStrLn "Nickname já exite!"
+            putStrLn "Preencha novamente utilizando outro nickname."
             criarConta conn
-        else
-            cadastrarConta conn nome email senha
+        else do
+            emailExistente <- checarEmailExistente conn email
+            if (emailExistente) then do
+                putStrLn "Email já cadastrado!"
+                putStrLn "Preencha novamente utilizando outro endereço de email."
+                criarConta conn
+            else
+                cadastrarConta conn nickname nome email senha
     menuInicial conn
+
+checarNicknameExistente::Connection->String->IO Bool
+checarNicknameExistente conn nickname = do
+    [Only count] <- query conn "SELECT COUNT(*) FROM usuario WHERE user_nickname = ?" (Only nickname)
+    return (count /= (0 :: Int))
 
 checarEmailExistente::Connection->String->IO Bool
 checarEmailExistente conn email = do
     [Only count] <- query conn "SELECT COUNT(*) FROM usuario WHERE user_email = ?" (Only email)
     return (count /= (0 :: Int))
 
-cadastrarConta::Connection->String->String->String->IO()
-cadastrarConta conn nome email senha = do
+cadastrarConta::Connection->String->String->String->String->IO()
+cadastrarConta conn nickname nome email senha = do
     -- Obter a hora atual
     currentTime <- getCurrentTime
     -- Formatar a data atual (YYYY-MM-DD)
     let dataFormatada = formatTime defaultTimeLocale "%Y-%m-%d" currentTime
     let q = "INSERT INTO usuario\
-                    \(user_nome, \
+                    \(user_nickname, \
+                    \user_nome, \
                     \user_email, \
                     \user_senha, \
                     \user_tipo, \
                     \user_date, \
                     \user_saldo) \
-                    \values (?, ?, ?, ?, ?, ?)"
+                    \values (?, ?, ?, ?, ?, ?, ?)"
     execute_ conn "BEGIN"
-    _ <- execute conn q (nome, email, senha, "Padrão"::String, dataFormatada, 0::Float)
+    _ <- execute conn q (nickname, nome, email, senha, "Padrão"::String, dataFormatada, 0::Float)
     execute_ conn "COMMIT"
     putStrLn "Cadastro realizado com sucesso!"
     return()

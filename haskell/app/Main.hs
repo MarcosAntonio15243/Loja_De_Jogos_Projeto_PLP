@@ -14,7 +14,7 @@ main = do
     -- putStrLn "                BEM VINDO(A) À LOJA DE JOGOS                "
 
     -- menuInicial conn
-    menuConta conn 2 3
+    menuConta conn 2
 
     -- putStrLn "============================================================"
     -- putStrLn "            OBRIGADO POR UTILIZAR O NOSSO SISTEMA!          "

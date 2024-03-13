@@ -19,6 +19,7 @@ createUsers :: Connection -> IO()
 createUsers conn = do
     execute_ conn "CREATE TABLE IF NOT EXISTS usuario (\
                     \user_id SERIAL PRIMARY KEY,\
+                    \user_nickname VARCHAR(50) NOT NULL,\
                     \user_nome VARCHAR(50) NOT NULL,\
                     \user_email VARCHAR(50) NOT NULL,\
                     \user_senha VARCHAR(50) NOT NULL,\
@@ -53,12 +54,25 @@ createCompras conn = do
                     \FOREIGN KEY (game_id) REFERENCES jogo(game_id));"
     return ()
 
+createMensagens :: Connection -> IO()
+createMensagens conn = do
+    execute_ conn "CREATE TABLE IF NOT EXISTS mensagem (\
+                    \message_id SERIAL PRIMARY KEY,\
+                    \id_remetente INT NOT NULL,\
+                    \id_destinatario INT NOT NULL,\
+                    \message_texto TEXT NOT NULL,\
+                    \message_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\
+                    \FOREIGN KEY (id_remetente) REFERENCES usuario(user_id),\
+                    \FOREIGN KEY (id_destinatario) REFERENCES usuario(user_id));"
+    return ()
+
 iniciandoDatabase :: IO Connection
 iniciandoDatabase = do
     c <- connectionMyDB
     createUsers c
     createGames c
     createCompras c
+    createMensagens c
     return c
     
     
