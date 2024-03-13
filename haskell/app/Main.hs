@@ -1,6 +1,7 @@
 module Main where
 
-import Controller.User
+-- import Controller.User
+import Controller.Cliente
 import Database.PostgreSQL.Simple
 import LocalDB.ConnectionDB
 
@@ -9,13 +10,14 @@ main = do
     putStrLn "Criando base de dados..."
     conn <- iniciandoDatabase
 
-    putStrLn "============================================================"
-    putStrLn "                BEM VINDO(A) À LOJA DE JOGOS                "
+    -- putStrLn "============================================================"
+    -- putStrLn "                BEM VINDO(A) À LOJA DE JOGOS                "
 
-    menuInicial conn
+    -- menuInicial conn
+    menuConta conn 2 3
 
-    putStrLn "============================================================"
-    putStrLn "            OBRIGADO POR UTILIZAR O NOSSO SISTEMA!          "
-    putStrLn "============================================================"
+    -- putStrLn "============================================================"
+    -- putStrLn "            OBRIGADO POR UTILIZAR O NOSSO SISTEMA!          "
+    -- putStrLn "============================================================"
 
     putStrLn "Base de dados criada"
