@@ -5,8 +5,7 @@ import Database.PostgreSQL.Simple
 import LocalDB.ConnectionDB
 import Data.Int (Int64)
 
-import System.Process (callCommand)
-import System.Info (os)
+import Controller.Util
 
 menuConta::Connection->Int64->IO()
 menuConta conn user_id = do
@@ -26,6 +25,8 @@ menuConta conn user_id = do
             putStrLn "Selecione uma opção > "
 
             opcao <- getLine
+
+            clearScreenOnly
 
             case opcao of
                 "1" -> do
