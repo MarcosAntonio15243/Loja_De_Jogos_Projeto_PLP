@@ -7,8 +7,8 @@ import Data.Int (Int64)
 
 import Controller.Util
 
-menuConta::Connection->Int64->IO()
-menuConta conn user_id = do
+menuCliente::Connection->Int64->IO()
+menuCliente conn user_id = do
     putStrLn "================================================================================"
     putStrLn "                               PÁGINA PRINCIPAL                                 "
     putStrLn "================================================================================"
@@ -18,66 +18,83 @@ menuConta conn user_id = do
             putStrLn ("Seja bem vindo(a) \ESC[94m" ++ nome ++ "\ESC[0m!")
             putStrLn "O que deseja fazer?"
             putStrLn ""
-            putStrLn "1 - Comprar Jogos"
-            putStrLn "2 - Amigos"
-            putStrLn "3 - Sair"
+            putStrLn "1 - Jogos Disponíveis"
+            putStrLn "2 - Mensagens"
+            putStrLn "3 - Meu Perfil"
+            putStrLn "4 - Sair"
             putStrLn ""
-            putStrLn "Selecione uma opção > "
+            putStrLn "Selecione uma opção: "
 
             opcao <- getLine
-
-            clearScreenOnly
+            putStrLn "================================================================================"
 
             case opcao of
-                "1" -> do
-                    menuConta conn user_id
+                "1" -> do putStrLn "A FAZER"
                 "2" -> do
-                    putStrLn "TESTES"
-                    friend_nickname <- getLine -- Recebendo o nick do amigo
-                    abrirChat conn user_id friend_nickname
-                "3" -> return () -- alterar depois
+                    putStrLn "Digite o nickname do usuário que deseja enviar a mensagem:"
+                    friend_nickname <- getLine
+                    checarNicknameUserFriend conn user_id friend_nickname
+                "3" -> do putStrLn "A FAZER"
+                "4" -> return()
                 _ -> do
-                    putStrLn "Opção inválida! Por favor, tente novamente."
-                    menuConta conn user_id
+                    putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
+                    menuCliente conn user_id
         Nothing -> do putStrLn "Id usuário Inválido!"
-    
 
-getIDByNickname::Connection->String->IO (Maybe Int64)
-getIDByNickname conn nick = do
-    result <- query conn "SELECT user_id FROM usuario WHERE user_nickname = ?" (Only nick) :: IO [Only Int64]
-    case result of
-        [Only user_id] -> return $ Just user_id
-        _ -> return Nothing
+        
+checarNicknameUserFriend::Connection->Int64->String->IO()
+checarNicknameUserFriend conn user_id friend_nickname = do
+    maybe_friend_id <- getIDByNickname conn friend_nickname
+    case maybe_friend_id of
+         Just (friend_id) ->
+            if (user_id == friend_id) then do
+                limparTela
+                putStrLn "O nickname digitado não pode ser seu próprio nick!"
+                putStrLn "Tente novamente utilizando outro nickname."
+                menuCliente conn user_id
+            else
+                abrirChat conn user_id friend_id friend_nickname
+         Nothing -> do
+            putStrLn "ID amigo não encontrado!"
+            menuCliente conn user_id
 
-abrirChat::Connection->Int64->String->IO()
-abrirChat conn user_id friend_nickname = do
+
+
+abrirChat::Connection->Int64->Int64->String->IO()
+abrirChat conn user_id friend_id friend_nickname = do
+    limparTela
     putStrLn "================================================================================"
     putStrLn "                                     CHAT                                       "
     putStrLn "================================================================================"
     putStrLn ""
-
-    maybeFriendID <- getIDByNickname conn friend_nickname
-    case (maybeFriendID) of
-        Just (friend_id) -> do
-            mensagens <- getMensagens conn user_id friend_id
-            exibeMensagens user_id friend_nickname mensagens
-        Nothing -> do putStrLn "Id amigo Inválido!"
+    mensagens <- getMensagens conn user_id friend_id
+    exibeMensagens user_id friend_nickname mensagens
+    putStrLn "================================================================================"
+    apagarLinha
+    putStrLn "Escreva uma mensagem (ou tecle ENTER para sair):"
+    mensagem <- getLine
     
-getNomeByID::Connection->Int64->IO (Maybe String)
-getNomeByID conn id = do
-    result <- query conn "SELECT user_nome FROM usuario WHERE user_id = ?" (Only id) :: IO [Only String]
-    case result of
-        [Only nome] -> return $ Just nome
-        _ -> return Nothing
-
-exibeMensagens::Int64->String->[(Int64, String)]->IO()
-exibeMensagens _ _ [] = putStrLn "================================================================================"
-exibeMensagens user_id friend_nickname ((id_remetente, message_texto):t) = do
-    if (id_remetente == user_id) then do
-        putStrLn ("\ESC[92m[Você]:\ESC[0m " ++ message_texto ++ "\n")
+    if (Prelude.null mensagem) then do
+        menuCliente conn user_id
+        limparTela
     else do
-        putStrLn ("\ESC[91m[" ++ friend_nickname ++ "]:\ESC[0m " ++ message_texto ++ "\n")
-    exibeMensagens user_id friend_nickname t
+        enviarMensagem conn user_id friend_id mensagem
+        limparTela
+        abrirChat conn user_id friend_id friend_nickname
+
+
+enviarMensagem::Connection->Int64->Int64->String->IO()
+enviarMensagem conn user_id friend_id mensagem = do
+    let q = "INSERT INTO mensagem\
+                    \(id_remetente, \
+                    \id_destinatario, \
+                    \message_texto) \
+                    \values (?, ?, ?)"
+    execute_ conn "BEGIN"
+    _ <- execute conn q (user_id, friend_id, mensagem)
+    execute_ conn "COMMIT"
+    return()
+
 
 getMensagens::Connection->Int64->Int64->IO [(Int64, String)]
 getMensagens conn user_id friend_id = do
@@ -85,4 +102,16 @@ getMensagens conn user_id friend_id = do
             \WHERE id_remetente IN (?, ?) AND id_destinatario IN (?,?) \
             \ORDER BY message_date" (user_id, friend_id, user_id, friend_id)
     return [(id_remetente, message_texto) | (id_remetente, message_texto) <- mensagens]
+
+
+exibeMensagens::Int64->String->[(Int64, String)]->IO()
+exibeMensagens _ _ [] = return()
+exibeMensagens user_id friend_nickname ((id_remetente, message_texto):t) = do
+    if (id_remetente == user_id) then do
+        putStrLn ("\ESC[92m[Você]:\ESC[0m " ++ message_texto ++ "\n")
+    else do
+        putStrLn ("\ESC[91m[" ++ friend_nickname ++ "]:\ESC[0m " ++ message_texto ++ "\n")
+    exibeMensagens user_id friend_nickname t
+
+
     
