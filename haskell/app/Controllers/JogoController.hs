@@ -33,6 +33,7 @@ printJogos jogos = do
       putStrLn $ "Nome: " ++ game_nome jogo
       putStrLn $ "Gênero: " ++ game_genero jogo
       putStrLn $ "Preço: " ++ show (game_price jogo)
+      putStrLn $ "\ESC[1m\ESC[32mDigite o ID do jogo para ver detalhes\ESC[0m"
       putStrLn $ replicate 60 '-'
 
     
