@@ -13,13 +13,9 @@ main = do
     conn <- iniciandoDatabase
 
     limparTela
-    putStrLn "================================================================================"
-    putStrLn "                          BEM VINDO(A) À LOJA DE JOGOS                          "
-
     menuInicial conn
-    -- menuConta conn 2
-
     limparTela
+    
     putStrLn "================================================================================"
     putStrLn "                     OBRIGADO POR UTILIZAR O NOSSO SISTEMA!                     "
     putStrLn "================================================================================"

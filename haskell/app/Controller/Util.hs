@@ -4,17 +4,25 @@ module Controller.Util where
 import Database.PostgreSQL.Simple
 import Data.Int (Int64)
 import Data.Maybe (listToMaybe)
+
 import System.Console.ANSI
+import System.Process (callCommand)
+import System.Info (os)
+
 
 limparTela::IO()
 limparTela = do
+    case os of
+        "linux" -> callCommand "clear"
+        "darwin" -> callCommand "clear"
+        "mingw32" -> callCommand "cls"
+        _ -> limparTelaANSI
+
+limparTelaANSI::IO()
+limparTelaANSI = do
     clearScreen
     setCursorPosition 0 0
-
-apagarLinha::IO()
-apagarLinha = do
-    clearLine
-    setCursorColumn 0
+    return()
 
 checarNicknameExistente::Connection->String->IO Bool
 checarNicknameExistente conn nickname = do

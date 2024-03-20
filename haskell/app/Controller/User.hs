@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Controller.User where
-import Controller.Cliente
 import Database.PostgreSQL.Simple
 import Data.Time.Format
 import Data.Time.Clock
@@ -8,16 +7,18 @@ import Data.Int (Int64)
 import Data.Maybe (listToMaybe)
 
 import Controller.Util
-import Controller.Cliente
+import Controller.Cliente (menuCliente)
 
 menuInicial::Connection -> IO()
 menuInicial conn = do
     putStrLn "================================================================================"
+    putStrLn "                          BEM VINDO(A) À LOJA DE JOGOS                          "
+    putStrLn "================================================================================"
     putStrLn "MENU:"
     putStrLn ""
-    putStrLn "1 - Login"
-    putStrLn "2 - Criar uma conta"
-    putStrLn "3 - Sair"
+    putStrLn " 1 - Login"
+    putStrLn " 2 - Criar uma conta"
+    putStrLn " 3 - Sair"
     putStrLn ""
     putStrLn "================================================================================"
     putStrLn "Selecione uma opção: "
@@ -26,10 +27,8 @@ menuInicial conn = do
     limparTela
 
     case opcao of
-        "1" -> do
-            login conn
-        "2" -> do
-            criarConta conn
+        "1" -> do login conn
+        "2" -> do criarConta conn
         "3" -> return ()
         _ -> do
             putStrLn "Opção inválida! Por favor, tente novamente."
@@ -51,6 +50,7 @@ desejaContinuar conn funcao = do
 
 login::Connection->IO()
 login conn = do
+    limparTela
     putStrLn "================================================================================"
     putStrLn "                                       LOGIN                                    "
     putStrLn "================================================================================"
@@ -69,6 +69,7 @@ login conn = do
             Just (user_id, tipo) -> do
                 if (tipo == "Padrão") then do
                     -- Transição para a tela do cliente após o login
+                    limparTela
                     menuCliente conn user_id
                 else do
                     putStrLn "Administrador" -- Transição para as telas do Administrador
@@ -116,8 +117,11 @@ criarConta conn = do
             if (emailExistente) then do
                 putStrLn "Email já cadastrado!"
                 desejaContinuar conn (criarConta)
-            else
+            else do
+                limparTela
                 cadastrarConta conn nickname nome email senha
+                putStrLn "Cadastro realizado com sucesso!"
+                menuInicial conn
 
 
 cadastrarConta::Connection->String->String->String->String->IO()
@@ -138,5 +142,4 @@ cadastrarConta conn nickname nome email senha = do
     execute_ conn "BEGIN"
     _ <- execute conn q (nickname, nome, email, senha, "Padrão"::String, dataFormatada, 0::Float)
     execute_ conn "COMMIT"
-    putStrLn "Cadastro realizado com sucesso!"
     return()
