@@ -94,8 +94,8 @@ abrirChat conn user_id friend_id friend_nickname = do
     mensagem <- getLine
     
     if (Prelude.null mensagem) then do
-        menuCliente conn user_id
         limparTela
+        menuCliente conn user_id
     else do
         enviarMensagem conn user_id friend_id mensagem
         limparTela
