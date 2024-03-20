@@ -7,6 +7,8 @@ import Data.Int (Int64)
 
 import Controller.Util
 
+import Controller.JogoController
+
 menuCliente::Connection->Int64->IO()
 menuCliente conn user_id = do
     putStrLn "================================================================================"
@@ -39,6 +41,7 @@ menuCliente conn user_id = do
                     putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
                     menuCliente conn user_id
         Nothing -> do putStrLn "Id usuário Inválido!"
+
 
 mensagens::Connection->Int64->IO()
 mensagens conn user_id = do
