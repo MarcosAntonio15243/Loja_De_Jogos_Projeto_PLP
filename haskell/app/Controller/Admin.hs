@@ -5,6 +5,7 @@ import Data.Time.Format
 import Data.Time.Clock
 import Data.Int (Int64)
 import Data.Maybe (listToMaybe)
+import Data.Time
 
 menuInicialAdmin::Connection -> IO()
 menuInicialAdmin conn = do
@@ -18,7 +19,7 @@ menuInicialAdmin conn = do
     putStrLn "5 - Sair"
     putStrLn ""
     putStrLn "============================================================"
-    putStr "Selecione uma opção:  "
+    putStrLn "Selecione uma opção:  "
 
     opcao <- getLine
 
@@ -28,6 +29,10 @@ menuInicialAdmin conn = do
         "1" -> do
             putStrLn "Preencha os dados do jogo abaixo:\n"
             adicionarJogo conn
+        "2" -> do
+            exibirJogo conn
+        "4" -> do
+            removeJogo conn
         "5" -> return ()
         _ -> do
             putStrLn "Opção inválida! Por favor, tente novamente."
@@ -39,12 +44,17 @@ adicionarJogo conn = do
     nome <- getLine
     putStrLn "Digite a descrição:"
     descricao <- getLine
-    putStrLn "Escreva o gênero:"
-    generos <- getLine
+    putStrLn "1 - Ação e Aventura"
+    putStrLn "2 - RPG"
+    putStrLn "3 - Terror"
+    putStrLn "4 - Estratégia"
+    putStrLn "5 - FPS"
+    putStrLn "Selecione um gênero:"
+    genero <- getLine
     putStrLn "Digite o valor:"
     valor <- readLn :: IO Float
     putStrLn "============================================================"
-    if (Prelude.null nome || Prelude.null descricao || Prelude.null generos || valor < 0) then do
+    if (Prelude.null nome || Prelude.null descricao || validaGenero genero || valor < 0) then do
         putStrLn "Existe algum campo inválido"
         putStrLn "Preencha novamente os dados:"
         adicionarJogo conn
@@ -53,40 +63,21 @@ adicionarJogo conn = do
         if (jogoExistente) then do 
             putStrLn ("Já existe um jogo cadastrado com esse nome")
             adicionarJogo conn
-        else cadastraJogo conn nome descricao generos valor
+        else cadastraJogo conn nome descricao (getGenero genero) valor
 
+getGenero::String -> String
+getGenero "1" = "Ação e Aventura"
+getGenero "2" = "RPG"
+getGenero "3" = "Terror"
+getGenero "4" = "Estratégia"
+getGenero "5" = "FPS"
 
---getGeneros :: String -> String
---getGeneros str = do
- --  opcao <- getLine
- ---   putStrLn "============================================================"
-  --  putStrLn "GÊNEROS:"
-  --  putStrLn ""
- --  putStrLn "1 - Ação"
-  --  putStrLn "2 - Aventura"
-  --  putStrLn "3 - RPG"
-  --  putStrLn "4 - Terror"
-  --  putStrLn "5 - Estratégia"
-  --  putStrLn "6 - FPS"
- ---   putStrLn "7 - Finalizar"
-  --  putStrLn ""
-  ----  putStrLn "============================================================"
-  --  putStr "Selecione uma opção:  "
-  --  case opcao of
-   --         "1" -> getGeneros (str ++ "Ação ")
-  --          "2" -> getGeneros (str ++ "Aventura ")
-  --          "3" -> getGeneros (str ++ "RPG  ")
- --           "4" -> getGeneros (str ++ "Terror ")
-  --          "5" -> getGeneros (str ++ "Estratégia ")
---"6" -> getGeneros (str ++ "FPS ")
- --           "7" -> str
- --           _ -> do
---                putStrLn "Opção inválida! Por favor, tente novamente."
---                getGeneros str
+validaGenero::String -> Bool
+validaGenero x = x /= "1" && x /= "2" && x /= "3" && x /= "4" && x /= "5"
 
 checarNomeDeJogoExistente::Connection->String->IO Bool
 checarNomeDeJogoExistente conn nomeDoJogo = do
-    [Only count] <- query conn "SELECT COUNT(*) FROM game WHERE game_nome = ?" (Only nomeDoJogo)
+    [Only count] <- query conn "SELECT COUNT(*) FROM jogo WHERE game_nome = ?" (Only nomeDoJogo)
     return (count /= (0 :: Int))
 
 cadastraJogo::Connection->String->String->String->Float->IO()
@@ -105,4 +96,65 @@ cadastraJogo conn nome descricao generos valor = do
                     \values (?, ?, ?, ?, ?, ?)"
     _ <- execute conn q (nome, generos, descricao, dataFormatada, 0::Int, valor)
     putStrLn "Jogo cadastrado com sucesso"
+    return()
+
+exibirJogo::Connection -> IO()
+exibirJogo conn = do
+    putStrLn "Digite o nome do jogo para exibir as informações sobre ele:"
+    nomeJogo <- getLine
+
+    jogoExiste <- checarNomeDeJogoExistente conn nomeJogo
+
+    if jogoExiste then do
+        putStrLn ("Aqui estão as informações do jogo " ++ nomeJogo ++ ":")
+        infoJogo <- obterInformacoesJogo conn nomeJogo
+        mapM_ (mostraInformacoesJogo) infoJogo
+        menuInicialAdmin conn
+
+    else do 
+        putStrLn "Não existe um jogo com esse nome"
+        menuInicialAdmin conn
+
+mostraInformacoesJogo :: (String, String, String, Day, Int, Double) -> IO ()
+mostraInformacoesJogo (nome, genero, descricao, dataDeLancamento, avaliacao, preco) = do
+    putStrLn $ "Genero: " ++ genero
+    putStrLn $ "Descricao: " ++ descricao
+    putStrLn $ "Data de lançamento: " ++ formatTime defaultTimeLocale "%Y-%m-%d" dataDeLancamento
+    putStrLn $ "Avaliação: " ++ show avaliacao
+    putStrLn $ "Preço: R$" ++ show preco
+    putStrLn ""
+
+obterInformacoesJogo :: Connection -> String -> IO [(String, String, String, Day, Int, Double)]
+obterInformacoesJogo conn nomeJogo = do
+    query conn "SELECT game_nome, game_genero, game_description, game_data_lancamento, game_avaliacao, game_price FROM jogo WHERE game_nome = ?" (Only nomeJogo)
+
+removeJogo::Connection -> IO()
+removeJogo conn = do
+    putStrLn "Digite o nome do jogo que deseja remover: "
+    nomeJogo <- getLine
+
+    jogoExiste <- checarNomeDeJogoExistente conn nomeJogo
+
+    if jogoExiste then do
+        putStrLn  $ "Tem certeza que deseja deletar o jogo: " ++ nomeJogo ++ "? S/N"
+        confirmacao <- getLine
+        case confirmacao of
+                        "S" -> do
+                            removeJogoDoSistema conn nomeJogo
+                            putStrLn "Jogo removido com sucesso!"
+                            menuInicialAdmin conn
+                        "N" -> do
+                            putStrLn  $ "Remoção do jogo " ++ nomeJogo ++ "foi cancelada!"
+                            menuInicialAdmin conn
+                        _ -> do
+                            putStrLn "Opção inválida. Por favor, escolha novamente."
+                            removeJogo conn
+
+    else do 
+        putStrLn "Não existe um jogo com esse nome"
+        menuInicialAdmin conn
+
+removeJogoDoSistema :: Connection -> String -> IO ()
+removeJogoDoSistema conn nomeJogo = do
+    execute conn "DELETE FROM jogo WHERE game_nome = ?" (Only nomeJogo)
     return()
