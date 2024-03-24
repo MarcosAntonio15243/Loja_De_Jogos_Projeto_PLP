@@ -40,7 +40,8 @@ executable plp
 
     -- .hs or .lhs file containing the Main module.
     main-is:          Main.hs
-    other-modules:  Controllers.JogoController, LocalDB.ConnectionDB, Models.Jogo, Models.Compra, Models.Usuario
+    other-modules:  Controllers.JogoController, Controllers.CompraController, Controllers.UsuarioController,
+                    LocalDB.ConnectionDB, Models.Jogo, Models.Compra, Models.Usuario
     -- Modules included in this executable, other than Main.
     -- other-modules:
 
@@ -51,7 +52,9 @@ executable plp
     build-depends:      base ^>=4.19.0.0,
                         postgresql-simple ^>=0.7.0.0,
                         time,
-                        text
+                        text,
+                        process,
+                        ansi-terminal >= 0.11
 
     -- Directories containing source files.
     hs-source-dirs:   app

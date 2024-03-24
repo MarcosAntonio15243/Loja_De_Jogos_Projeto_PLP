@@ -58,6 +58,7 @@ printJogoDetalhado jogos = do
       putStrLn $ "Data de Lançamento: " ++ show (game_data_lancamento jogo)
       putStrLn $ "Avaliação: " ++ show (game_avaliacao jogo)
       putStrLn $ "Preço: " ++ show (game_price jogo)
+      putStrLn $ "\ESC[1m\ESC[32mComprar jogo? [s/n] \ESC[0m"
       putStrLn $ replicate 60 '-'
 
 
@@ -66,7 +67,7 @@ getJogos conn = do
     query_ conn "SELECT * FROM jogo" :: IO [Jogo]
 
 
-getJogoPorId:: Connection -> Integer -> IO [Jogo]
+getJogoPorId:: Connection -> Int -> IO [Jogo]
 getJogoPorId conn id = do
     query conn "SELECT * FROM jogo WHERE game_id = ?" (Only id) :: IO [Jogo]
 
@@ -105,3 +106,15 @@ getJogosOrdenadosPorPreco conn = do
 getJogosOrdenadosPorAvaliacao:: Connection -> IO [Jogo]
 getJogosOrdenadosPorAvaliacao conn = do
     query_ conn "SELECT * FROM jogo ORDER BY game_avaliacao" :: IO [Jogo]
+
+
+getPrecoDoJogo :: Connection -> Int -> IO Double
+getPrecoDoJogo conn gameId = do
+    [Only preco] <- query conn "SELECT game_price FROM jogo WHERE game_id = ?" (Only gameId)
+    return preco
+
+
+existeJogo :: Connection -> Int -> IO Bool
+existeJogo conn gameId = do
+    [Only count] <- query conn "SELECT COUNT(*) FROM jogo WHERE game_id = ?" (Only gameId)
+    return (count > (0 :: Int))

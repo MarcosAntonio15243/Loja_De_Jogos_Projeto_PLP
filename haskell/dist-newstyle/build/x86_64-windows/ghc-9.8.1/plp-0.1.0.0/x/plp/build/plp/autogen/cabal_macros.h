@@ -10,6 +10,16 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 0)
 #endif /* MIN_VERSION_plp */
+/* package ansi-terminal-1.1 */
+#ifndef VERSION_ansi_terminal
+#define VERSION_ansi_terminal "1.1"
+#endif /* VERSION_ansi_terminal */
+#ifndef MIN_VERSION_ansi_terminal
+#define MIN_VERSION_ansi_terminal(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  1 || \
+  (major1) == 1 && (major2) == 1 && (minor) <= 0)
+#endif /* MIN_VERSION_ansi_terminal */
 /* package base-4.19.0.0 */
 #ifndef VERSION_base
 #define VERSION_base "4.19.0.0"
@@ -30,6 +40,16 @@
   (major1) == 0 && (major2) <  7 || \
   (major1) == 0 && (major2) == 7 && (minor) <= 0)
 #endif /* MIN_VERSION_postgresql_simple */
+/* package process-1.6.18.0 */
+#ifndef VERSION_process
+#define VERSION_process "1.6.18.0"
+#endif /* VERSION_process */
+#ifndef MIN_VERSION_process
+#define MIN_VERSION_process(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  6 || \
+  (major1) == 1 && (major2) == 6 && (minor) <= 18)
+#endif /* MIN_VERSION_process */
 /* package text-2.1 */
 #ifndef VERSION_text
 #define VERSION_text "2.1"
