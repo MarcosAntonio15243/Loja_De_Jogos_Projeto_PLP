@@ -5,6 +5,7 @@ import Database.PostgreSQL.Simple
 import LocalDB.ConnectionDB
 import Data.Int (Int64)
 import Data.Maybe (fromJust)
+import Data.Maybe (fromMaybe)
 import Controller.Util
 import Controller.JogoController
 
@@ -156,7 +157,7 @@ perfilCliente conn userID = do
                 "2" -> do
                     carteiraCliente conn userID
                 "3" -> do
-                    putStrLn "A FAZER\n"
+                    editarPerfil conn userID
                 "4" -> do
                     limparTela
                     menuCliente conn userID
@@ -231,36 +232,6 @@ selecionarQntSaldo conn userID = do
             putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
             selecionarQntSaldo conn userID
 
-solicitarSenha :: Connection -> Int64 -> IO Bool
-solicitarSenha conn userID = do
-    putStrLn "============================================================"
-    putStrLn "Confirme sua senha: "
-    senhaDigitada <- getLine
-            
-    maybeSenhaReal <- getSenhaByID conn userID
-    case maybeSenhaReal of
-        Just senhaReal -> do
-            if senhaReal == senhaDigitada then
-                return True
-            else do
-                putStrLn "============================================================"
-                putStrLn "\ESC[91mSENHA INCORRETA\ESC[0m"
-                putStrLn "============================================================"
-                putStrLn "1. Tentar novamente"
-                putStrLn "2. Cancelar"
-                putStrLn "============================================================"
-                putStrLn "Selecione uma opção > "
-
-                opcao <- getLine
-                limparTela
-
-                case opcao of
-                    "1" -> solicitarSenha conn userID
-                    "2" -> return False
-                    _ -> putStrLn "\ESC[91mOpção inválida!\ESC[0m" >> return False
-
-        Nothing -> do
-            putStrLn "ERRO: SENHA NÃO ENCONTRADA" >> return False
 
 selecionarSaldo :: Connection -> Int64 -> Double -> IO ()
 selecionarSaldo conn userID saldo = do
@@ -273,7 +244,51 @@ selecionarSaldo conn userID saldo = do
         selecionarQntSaldo conn userID
         
                 
+editarPerfil:: Connection -> Int64 -> IO ()
+editarPerfil conn userID = do
+    (nome, nick, email, tipo, date) <- getInformacoesPerfil conn userID
 
+    putStrLn "============================================================"
+    putStrLn "               Informações do seu Perfil:                   "
+    putStrLn "============================================================"
+    putStrLn ""
+    putStrLn $ "Nome: " ++ nome 
+    putStrLn $ "Nickname: " ++ nick
+    putStrLn $ "Email: " ++ email
+    putStrLn   "Senha: *******"
+    putStrLn $ "Tipo de usuário: " ++ tipo ++ " \ESC[91m- Não alterável.\ESC[0m"
+    putStrLn $ "Data de criação: " ++ date ++ " \ESC[91m- Não alterável.\ESC[0m" 
+    putStrLn ""
+    putStrLn "============================================================"
+    putStrLn "1. Alterar Nome"
+    putStrLn "2. Alterar Nickname"
+    putStrLn "3. Alterar Email"
+    putStrLn "4. Alterar Senha"
+    putStrLn "5. Voltar"
+    putStrLn "============================================================"
+    putStrLn "Selecione uma opção > "
+
+    opcao <- getLine
+    limparTela
+
+    case opcao of
+        "1" -> do 
+            alterarNome conn userID
+            eP
+        "2" -> do
+            alterarNick conn userID
+            eP
+        "3" -> do
+            alterarEmail conn userID
+            eP
+        "4" -> do 
+            alterarSenha conn userID
+            eP
+        "5" -> perfilCliente conn userID
+        _ -> do
+            putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
+            eP
+        where eP = editarPerfil conn userID
 
     
 
