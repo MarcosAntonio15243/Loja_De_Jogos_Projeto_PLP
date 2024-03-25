@@ -37,6 +37,6 @@ main = do
     jogo <- getJogoPorId conn jogoId 
     limparTela
     printJogoDetalhado jogo
-    realizaCompra conn 2 4
+    realizaCompra conn 3 10
     
 
