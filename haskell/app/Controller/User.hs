@@ -31,7 +31,7 @@ menuInicial conn = do
         "2" -> do criarConta conn
         "3" -> return ()
         _ -> do
-            putStrLn "Opção inválida! Por favor, tente novamente."
+            putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
             menuInicial conn
 
 desejaContinuar::Connection->(Connection->IO())->IO()
@@ -110,7 +110,7 @@ criarConta conn = do
     else do
         nicknameExistente <- checarNicknameExistente conn nickname
         if (nicknameExistente) then do
-            putStrLn "Nickname já exite!"
+            putStrLn "Nickname já existe!"
             desejaContinuar conn (criarConta)
         else do
             emailExistente <- checarEmailExistente conn email

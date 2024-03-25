@@ -38,7 +38,7 @@ createGames conn = do
                     \game_genero VARCHAR(50) NOT NULL,\
                     \game_description TEXT NOT NULL,\
                     \game_data_lancamento DATE NOT NULL,\
-                    \game_avaliacao INT NOT NULL,\
+                    \game_avaliacao FLOAT NOT NULL,\
                     \game_price FLOAT NOT NULL);"
     return ()
 
@@ -50,6 +50,8 @@ createCompras conn = do
                     \compra_price FLOAT NOT NULL,\
                     \user_id INT NOT NULL,\
                     \game_id INT NOT NULL,\
+                    \avaliacao_compra INT,\
+                    \favoritar_jogo BOOLEAN,\
                     \FOREIGN KEY (user_id) REFERENCES usuario(user_id),\
                     \FOREIGN KEY (game_id) REFERENCES jogo(game_id));"
     return ()
@@ -66,6 +68,30 @@ createMensagens conn = do
                     \FOREIGN KEY (id_destinatario) REFERENCES usuario(user_id));"
     return ()
 
+createComentarios :: Connection -> IO()
+createComentarios conn = do
+    execute_ conn "CREATE TABLE IF NOT EXISTS comentario (\
+                    \comentario_id SERIAL PRIMARY KEY,\
+                    \id_usuario INT NOT NULL,\
+                    \id_jogo INT NOT NULL,\
+                    \comentario_texto TEXT NOT NULL,\
+                    \comentario_date DATE NOT NULL,\
+                    \FOREIGN KEY (id_usuario) REFERENCES usuario(user_id),\
+                    \FOREIGN KEY (id_jogo) REFERENCES jogo(game_id));"
+    return ()
+
+createDenuncias :: Connection -> IO()
+createDenuncias conn = do
+    execute_ conn "CREATE TABLE IF NOT EXISTS denuncia (\
+                    \denuncia_id SERIAL PRIMARY KEY,\
+                    \id_usuario INT NOT NULL,\
+                    \id_jogo INT NOT NULL,\
+                    \denuncia_motivo VARCHAR(50) NOT NULL,\
+                    \denuncia_descricao TEXT NOT NULL,\
+                    \FOREIGN KEY (id_usuario) REFERENCES usuario(user_id),\
+                    \FOREIGN KEY (id_jogo) REFERENCES jogo(game_id));"
+    return ()
+
 iniciandoDatabase :: IO Connection
 iniciandoDatabase = do
     c <- connectionMyDB
@@ -73,6 +99,6 @@ iniciandoDatabase = do
     createGames c
     createCompras c
     createMensagens c
+    createComentarios c
+    createDenuncias c
     return c
-    
-    

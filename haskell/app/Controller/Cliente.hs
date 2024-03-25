@@ -7,8 +7,6 @@ import Data.Int (Int64)
 
 import Controller.Util
 
-import Controller.JogoController
-
 menuCliente::Connection->Int64->IO()
 menuCliente conn user_id = do
     putStrLn "================================================================================"
@@ -20,10 +18,10 @@ menuCliente conn user_id = do
             putStrLn ("Seja bem vindo(a) \ESC[94m" ++ nome ++ "\ESC[0m!")
             putStrLn "O que deseja fazer?"
             putStrLn ""
-            putStrLn "1 - Jogos Disponíveis"
-            putStrLn "2 - Mensagens"
-            putStrLn "3 - Meu Perfil"
-            putStrLn "4 - Sair"
+            putStrLn " 1 - Jogos Disponíveis"
+            putStrLn " 2 - Mensagens"
+            putStrLn " 3 - Meu Perfil"
+            putStrLn " 4 - Sair"
             putStrLn ""
             putStrLn "================================================================================"
             putStrLn "Selecione uma opção: "
