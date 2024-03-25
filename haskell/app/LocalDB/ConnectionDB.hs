@@ -50,8 +50,8 @@ createCompras conn = do
                     \compra_price FLOAT NOT NULL,\
                     \user_id INT NOT NULL,\
                     \game_id INT NOT NULL,\
-                    \avaliacao_compra INT,\
-                    \favoritar_jogo BOOLEAN,\
+                    \avaliacao_compra INT DEFAULT (-1),\
+                    \favoritar_jogo BOOLEAN DEFAULT (false),\
                     \FOREIGN KEY (user_id) REFERENCES usuario(user_id),\
                     \FOREIGN KEY (game_id) REFERENCES jogo(game_id));"
     return ()
