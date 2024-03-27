@@ -90,19 +90,22 @@ criarConta conn = do
     putStrLn "                                 CRIAR CONTA                                    "
     putStrLn "================================================================================"
     putStrLn "Preencha seus dados abaixo:\n"
-    putStrLn "Nickname:"
+    putStrLn "Nickname (máximo de 50 caracteres):"
     nickname <- getLine
-    putStrLn "Nome:"
+    putStrLn "Nome (máximo de 50 caracteres):"
     nome <- getLine
-    putStrLn "E-mail:"
+    putStrLn "E-mail (máximo de 50 caracteres):"
     email <- getLine
-    putStrLn "Senha:"
+    putStrLn "Senha (máximo de 50 caracteres):"
     senha <- getLine
-    putStrLn "Confirmar Senha:"
+    putStrLn "Confirmar Senha (máximo de 50 caracteres):"
     confirmarSenha <- getLine
     putStrLn "================================================================================"
     if (Prelude.null nickname || Prelude.null nome || Prelude.null email || Prelude.null senha || Prelude.null confirmarSenha) then do
         putStrLn "Nenhum campo pode estar vazio!"
+        desejaContinuar conn (criarConta)
+    else if (length nickname > 50 || length nome > 50 || length email > 50 || length senha > 50 || length confirmarSenha > 50) then do
+        putStrLn "Campos não podem ter mais que 50 caracteres"
         desejaContinuar conn (criarConta)
     else if (senha /= confirmarSenha) then do
         putStrLn "Senhas digitadas não são iguais!"
