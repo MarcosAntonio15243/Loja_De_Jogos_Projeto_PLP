@@ -10,7 +10,7 @@ data Jogo = Jogo {
     game_genero:: String,
     game_description:: String,
     game_data_lancamento:: Day,
-    game_avaliacao:: Int,
+    game_avaliacao:: Double,
     game_price:: Double
 } deriving (Show, Read, Eq)
 

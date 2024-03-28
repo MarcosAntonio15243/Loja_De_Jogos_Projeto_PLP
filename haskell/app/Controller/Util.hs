@@ -272,3 +272,16 @@ erroTenteNovamente message acao1 = do
         "1" -> acao1
         "2" -> return ()
         _ -> putStrLn "\ESC[91mOpção inválida!\ESC[0m"
+
+deletaConta:: Connection -> Int64 -> IO ()
+deletaConta conn userID = do
+    _ <- execute conn "DELETE FROM compra WHERE user_id = ?" (Only userID) -- deleta todas as compras do usuario
+    _ <- execute conn "DELETE FROM comentario WHERE id_usuario = ?" (Only userID) -- deleta todos os comentarios
+    _ <- execute conn "DELETE FROM denuncia WHERE id_usuario = ?" (Only userID) -- deleta todas as denuncias
+    _ <- execute conn "DELETE FROM mensagem WHERE id_remetente = ?" (Only userID) -- deleta todas as mensagens que o usuario enviou
+    _ <- execute conn "DELETE FROM usuario WHERE user_id = ?" (Only userID) -- por fim, deleta o usuario
+
+    putStrLn "============================================================"
+    putStrLn "                 Sua conta foi deletada!                    "
+    putStrLn "============================================================"
+    return ()
