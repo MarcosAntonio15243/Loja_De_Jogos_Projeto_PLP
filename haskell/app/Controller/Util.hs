@@ -218,7 +218,7 @@ alterarEmail conn id = do
             limparTela
 
             if emailAtual == emailDesejado then
-                erroTenteNovamente "OPS, o email inserido é igual ao nick atual." (alterarEmail conn id)
+                erroTenteNovamente "OPS, o email inserido é igual ao email atual." (alterarEmail conn id)
 
             else if emailExiste then
                 erroTenteNovamente "OPS, o email inserido já existe." (alterarEmail conn id)

@@ -12,6 +12,7 @@ import Text.Read (readMaybe)
 import Data.Char
 
 import Controller.CompraController
+import Text.Printf
 
 menuCliente::Connection->Int64->IO()
 menuCliente conn user_id = do
@@ -210,7 +211,7 @@ carteiraCliente conn userID = do
     putStrLn ""
     putStrLn "     ╔══════════════════════════════════════════════╗"
     putStrLn "     ║                                              ║"
-    putStrLn $ "       Saldo Disponível: R$" ++ show (fromJust saldo)
+    putStrLn $ "       Saldo Disponível: R$" ++ printf "%.2f" (fromJust saldo)
     putStrLn "     ║                                              ║"
     putStrLn "       1. Adicionar Saldo                           "
     putStrLn "     ║ 2. Voltar                                    ║"
@@ -452,7 +453,7 @@ denunciarJogo conn gameID userID = do
         "6" -> do
             registrarDenuncia conn gameID userID "Outros"
             dJ
-        "7" -> acessarJogo conn userID gameID
+        "7" -> return() --acessarJogo conn userID gameID
 
         _ -> do
             putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
@@ -517,7 +518,7 @@ favoritarJogo conn gameID userID = do
                 putStrLn "                Jogo removido dos favoritos!                "
                 putStrLn "============================================================"
             "n" -> do
-                acessarJogo conn userID gameID
+                return()
             _ -> do
                 putStrLn "\ESC[91mOpção inválida!\ESC[0m"
 
@@ -538,7 +539,7 @@ comentarJogo conn gameID userID = do
     
     let lowerInput = map toLower comentario  -- Convertendo para minúsculas
     case lowerInput of
-        "sair" -> acessarJogo conn userID gameID 
+        "sair" -> return() --acessarJogo conn userID gameID 
         _   -> do
             registrarComentario conn gameID userID comentario
 
