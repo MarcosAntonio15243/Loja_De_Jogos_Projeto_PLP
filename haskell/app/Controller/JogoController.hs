@@ -1,12 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant return" #-}
 
 module Controller.JogoController where
 import Database.PostgreSQL.Simple
 import Data.Text (pack, toLower)
 import Models.Jogo
 import Text.Printf
-
 import Data.Int (Int64)
+import Controller.Util (limparTela)
+import Data.Maybe (listToMaybe)
+import Data.List (sortBy)
+import Data.Time
 
 
 printJogos :: [Jogo] -> IO ()
@@ -27,8 +32,6 @@ printJogos jogos = do
       putStrLn $ "Preço: " ++ show (game_price jogo)
       putStrLn $ "\ESC[1m\ESC[32mDigite o ID do jogo para ver detalhes\ESC[0m"
       putStrLn $ replicate 80 '-'
-
-    
 
 
 printJogoDetalhado :: [Jogo] -> IO ()
@@ -51,7 +54,6 @@ printJogoDetalhado jogos = do
       putStrLn $ "Avaliação: " ++ show (game_avaliacao jogo)
       putStrLn $ "Preço: " ++ show (game_price jogo)
       putStrLn $ "\ESC[1m\ESC[32mComprar jogo? [s/n] \ESC[0m"
-
       putStrLn $ replicate 80 '-'
 
 
@@ -111,3 +113,140 @@ existeJogo :: Connection -> Int64 -> IO Bool
 existeJogo conn gameId = do
     [Only count] <- query conn "SELECT COUNT(*) FROM jogo WHERE game_id = ?" (Only gameId)
     return (count > (0 :: Int))
+
+getNomeJogosCliente:: Connection -> Int64 -> IO [String]
+getNomeJogosCliente conn userID = do
+    result <- query conn "SELECT j.game_nome FROM jogo j INNER JOIN compra c ON j.game_id = c.game_id WHERE c.user_id = ?" (Only userID)
+    return $ map fromOnly result
+
+getIDJogosCliente:: Connection -> Int64 -> IO [Int64]
+getIDJogosCliente conn userID = do
+    result <- query conn "SELECT j.game_id FROM jogo j INNER JOIN compra c ON j.game_id = c.game_id WHERE c.user_id = ?" (Only userID)
+    return $ map fromOnly result
+
+getNomeAndIDJogos:: Connection -> Int64 -> IO [(Int64, String)]
+getNomeAndIDJogos conn userID = do
+    result <- query conn "SELECT j.game_id, j.game_nome FROM jogo j INNER JOIN compra c ON j.game_id = c.game_id WHERE c.user_id = ?" (Only userID)
+    return result
+
+getNomeJogoByID :: Connection -> Int64 -> IO String
+getNomeJogoByID conn gameID = do
+    result <- query conn "SELECT game_nome FROM jogo WHERE game_id = ?" (Only gameID)
+    case result of
+        [Only nome] -> return nome  
+        _ -> return "" 
+
+getFavoritarJogo :: Connection -> Int64 -> Int64 -> IO Bool
+getFavoritarJogo conn gameID userID = do
+    result <- query conn "SELECT favoritar_jogo FROM compra WHERE user_id = ? and game_id = ?" (userID, gameID) 
+    case result of
+        [Only favoritado] -> return favoritado
+        _ -> error "Nenhum resultado encontrado"
+
+getAvaliacaoAtual :: Connection -> Int64 -> Int64 -> IO Int
+getAvaliacaoAtual conn gameID userID = do
+    result <- query conn "SELECT avaliacao_compra FROM compra WHERE game_id = ? and user_id = ?" (gameID, userID)
+    case result of
+        [Only avaliacaoAtual] -> return avaliacaoAtual
+        _ -> return (-2)
+
+getJogosFavoritosCliente:: Connection -> Int64 -> IO [Jogo]
+getJogosFavoritosCliente conn userID = do
+    result <- query conn "SELECT j.game_id, j.game_nome FROM jogo j INNER JOIN compra c ON j.game_id = c.game_id WHERE c.user_id = ? and favoritar_jogo = true" (Only userID)
+    return result
+
+registrarAvaliacao :: Connection -> Int64 -> Int64 -> Int -> IO()
+registrarAvaliacao conn gameID userID avaliacao = do
+    avaliacaoAtual <- getAvaliacaoAtual conn gameID userID
+
+    if avaliacaoAtual == (-1) then do
+        _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
+        putStrLn "============================================================"
+        putStrLn "             Avaliação atualizada com sucesso!              "
+        putStrLn "============================================================"
+
+    else do
+        putStrLn "============================================================"
+        putStrLn "\ESC[91mOPS, parece que você ja avaliou este jogo anteriormente\ESC[0m"
+        putStrLn $ "Essa é sua avaliação atual: Nota " ++ show avaliacaoAtual
+        putStrLn "Deseja alterá-la? (y/n) >"
+
+        opcao <- getLine
+        limparTela
+
+        case opcao of
+            "y" -> do 
+                _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
+                putStrLn "============================================================"
+                putStrLn "             Avaliação atualizada com sucesso!              "
+                putStrLn "============================================================"
+            "n" -> do
+                putStrLn "============================================================"
+                putStrLn "           Sua avaliação ao jogo foi cancelada.             "
+                putStrLn "============================================================"
+            _ -> putStrLn "\ESC[91mOpção inválida!\ESC[0m"
+                    
+        
+registrarComentario :: Connection -> Int64 -> Int64 -> String -> IO()
+registrarComentario conn gameID userID comentario = do
+    -- Obter a hora atual
+    currentTime <- getCurrentTime
+    -- Formatar a data atual (YYYY-MM-DD)
+    let dataFormatada = formatTime defaultTimeLocale "%Y-%m-%d" currentTime
+    let insert = "INSERT INTO comentario \
+                        \(id_usuario, \ 
+                        \id_jogo, \
+                        \comentario_texto, \
+                        \comentario_date) \
+                        \values (?, ?, ?, ?)" 
+    execute_ conn "BEGIN"
+    _ <- execute conn insert (userID, gameID, comentario, dataFormatada)
+    execute_ conn "COMMIT"
+    putStrLn "============================================================"
+    putStrLn "            Comentário registrado com sucesso               "
+    putStrLn "============================================================"
+    return()
+    
+registrarDenuncia:: Connection -> Int64 -> Int64 -> String-> IO()
+registrarDenuncia conn gameID userID motivo = do
+    putStrLn "============================================================"
+    putStrLn "Explique o motivo da denúncia, tente fornecer o máximo \nde detalhes possíveis."
+    putStrLn "\ESC[91mSua denúncia será enviada para o ADMIN, onde será \ndevidamente analisada\ESC[0m"
+    putStrLn ""
+    putStrLn "Descreva sua denúncia ou \ESC[91mSAIR\ESC[0m para voltar > "
+
+    descricao <- getLine
+    limparTela
+    
+    case descricao of
+        "sair" -> return() 
+        _   -> do  
+            let insert = "INSERT INTO denuncia \
+                                \(id_usuario, \ 
+                                \id_jogo, \
+                                \denuncia_motivo, \
+                                \denuncia_descricao) \
+                                \values (?, ?, ?, ?)" 
+            execute_ conn "BEGIN"
+            _ <- execute conn insert (userID, gameID, motivo, descricao)
+            execute_ conn "COMMIT"
+            putStrLn "============================================================"
+            putStrLn "     \ESC[91mDenúncia registrada.\ESC[0m Obrigado pela contribuição       "
+            putStrLn "============================================================"
+            return()
+
+
+exibirJogosCliente :: [(Int64, String)] -> IO ()
+exibirJogosCliente jogos = do
+    let jogosOrdenados = sortBy (\(id1, _) (id2, _) -> compare id1 id2) jogos  -- Ordena os jogos com base nos IDs
+    let maxIdWidth = maximum $ map (length . show . fst) jogosOrdenados  -- Calcula a largura máxima do ID
+    let formatado = map (\(id, jogo) -> padLeft maxIdWidth ' ' (show id) ++ " | " ++ jogo) jogosOrdenados  -- Formata os jogos com IDs alinhados
+    mapM_ putStrLn formatado  -- Imprime os jogos formatados
+    putStrLn ""
+    putStrLn "\ESC[91mA numeração ao lado do nome do jogo é seu ID\ESC[0m"
+    putStrLn "============================================================"
+
+-- Função auxiliar para preencher à esquerda
+padLeft :: Int -> Char -> String -> String
+padLeft n c s = replicate (max 0 (n - length s)) c ++ s
+
