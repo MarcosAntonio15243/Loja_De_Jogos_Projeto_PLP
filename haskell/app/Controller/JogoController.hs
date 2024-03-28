@@ -6,26 +6,18 @@ import Data.Text (pack, toLower)
 import Models.Jogo
 import Text.Printf
 
-cadastrarJogo:: Connection -> String -> String -> String -> String -> Int -> Double -> IO ()
-cadastrarJogo conn game_nome game_genero game_description game_data_lancamento game_avaliacao game_price = do
-    let q = "insert into jogo (game_nome,\
-                        \game_genero,\
-                        \game_description,\
-                        \game_data_lancamento,\
-                        \game_avaliacao,\
-                        \game_price) values (?,?,?,?,?,?)"
-    _ <- execute conn q (game_nome, game_genero, game_description, game_data_lancamento, game_avaliacao, game_price)
-    return ()
+import Data.Int (Int64)
+
 
 printJogos :: [Jogo] -> IO ()
 printJogos [] = putStrLn "Nenhum jogo encontrado."
 printJogos jogos = do
-  putStrLn $ replicate 60 '='
+  putStrLn $ replicate 80 '='
   let titulo = "LISTA DE JOGOS"
-      espacosAntes = (60 - length titulo) `div` 2
-      espacosDepois = 60 - length titulo - espacosAntes
+      espacosAntes = (80 - length titulo) `div` 2
+      espacosDepois = 80 - length titulo - espacosAntes
   putStrLn $ replicate espacosAntes ' ' ++ titulo ++ replicate espacosDepois ' '
-  putStrLn $ replicate 60 '='
+  putStrLn $ replicate 80 '='
   mapM_ printJogo jogos
   where
     printJogo jogo = do
@@ -34,7 +26,7 @@ printJogos jogos = do
       putStrLn $ "Gênero: " ++ game_genero jogo
       putStrLn $ "Preço: " ++ show (game_price jogo)
       putStrLn $ "\ESC[1m\ESC[32mDigite o ID do jogo para ver detalhes\ESC[0m"
-      putStrLn $ replicate 60 '-'
+      putStrLn $ replicate 80 '-'
 
     
 
@@ -42,12 +34,12 @@ printJogos jogos = do
 printJogoDetalhado :: [Jogo] -> IO ()
 printJogoDetalhado [] = putStrLn "Nenhum jogo encontrado."
 printJogoDetalhado jogos = do
-  putStrLn $ replicate 60 '='
+  putStrLn $ replicate 80 '='
   let titulo = printf "DETALHES DO JOGO [%d]" (game_id (head jogos))
-      espacosAntes = (60 - length titulo) `div` 2
-      espacosDepois = 60 - length titulo - espacosAntes
+      espacosAntes = (80 - length titulo) `div` 2
+      espacosDepois = 80 - length titulo - espacosAntes
   putStrLn $ replicate espacosAntes ' ' ++ titulo ++ replicate espacosDepois ' '
-  putStrLn $ replicate 60 '='
+  putStrLn $ replicate 80 '='
   mapM_ printJogoDetalhado jogos
   where
     printJogoDetalhado jogo = do
@@ -59,7 +51,8 @@ printJogoDetalhado jogos = do
       putStrLn $ "Avaliação: " ++ show (game_avaliacao jogo)
       putStrLn $ "Preço: " ++ show (game_price jogo)
       putStrLn $ "\ESC[1m\ESC[32mComprar jogo? [s/n] \ESC[0m"
-      putStrLn $ replicate 60 '-'
+
+      putStrLn $ replicate 80 '-'
 
 
 getJogos:: Connection -> IO [Jogo]
@@ -67,7 +60,7 @@ getJogos conn = do
     query_ conn "SELECT * FROM jogo" :: IO [Jogo]
 
 
-getJogoPorId:: Connection -> Int -> IO [Jogo]
+getJogoPorId:: Connection -> Int64 -> IO [Jogo]
 getJogoPorId conn id = do
     query conn "SELECT * FROM jogo WHERE game_id = ?" (Only id) :: IO [Jogo]
 
@@ -108,13 +101,13 @@ getJogosOrdenadosPorAvaliacao conn = do
     query_ conn "SELECT * FROM jogo ORDER BY game_avaliacao" :: IO [Jogo]
 
 
-getPrecoDoJogo :: Connection -> Int -> IO Double
+getPrecoDoJogo :: Connection -> Int64 -> IO Double
 getPrecoDoJogo conn gameId = do
     [Only preco] <- query conn "SELECT game_price FROM jogo WHERE game_id = ?" (Only gameId)
     return preco
 
 
-existeJogo :: Connection -> Int -> IO Bool
+existeJogo :: Connection -> Int64 -> IO Bool
 existeJogo conn gameId = do
     [Only count] <- query conn "SELECT COUNT(*) FROM jogo WHERE game_id = ?" (Only gameId)
     return (count > (0 :: Int))

@@ -6,6 +6,8 @@ import LocalDB.ConnectionDB
 import Data.Int (Int64)
 
 import Controller.Util
+import Controller.JogoController
+import Controller.CompraController
 
 menuCliente::Connection->Int64->IO()
 menuCliente conn user_id = do
@@ -30,7 +32,7 @@ menuCliente conn user_id = do
             limparTela
 
             case opcao of
-                "1" -> do putStrLn "A FAZER"
+                "1" -> do menuJogos conn user_id
                 "2" -> do mensagens conn user_id
                 "3" -> do putStrLn "A FAZER"
                 "4" -> do
@@ -39,6 +41,36 @@ menuCliente conn user_id = do
                     putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
                     menuCliente conn user_id
         Nothing -> do putStrLn "Id usuário Inválido!"
+
+
+menuJogos::Connection->Int64->IO()
+menuJogos conn user_id = do
+
+    jogos <- getJogos conn
+    printJogos jogos
+
+    putStrLn "Digite um id (Ou tecle ENTER para sair): "
+    idJogo <- getLine
+    
+    if (Prelude.null idJogo) then do
+        limparTela
+        menuCliente conn user_id
+    else do
+        let jogoId = read idJogo :: Int64
+        jogo <- getJogoPorId conn jogoId 
+        limparTela
+        if (jogo == []) then do
+            printJogoDetalhado jogo
+            desejaContinuar conn user_id (menuJogos)
+        else do
+            printJogoDetalhado jogo
+            opcao <- getLine
+            if (opcao == "s" || opcao == "S") then do
+                realizaCompra conn user_id (jogoId)
+                menuCliente conn user_id
+            else do
+                menuJogos conn user_id
+        
 
 
 mensagens::Connection->Int64->IO()

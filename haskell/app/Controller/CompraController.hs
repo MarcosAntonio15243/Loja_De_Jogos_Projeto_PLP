@@ -1,22 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Controllers.CompraController where
+module Controller.CompraController where
 import Database.PostgreSQL.Simple
 import Models.Compra
 import Models.Usuario
-import Controllers.JogoController
-import Controllers.UsuarioController
+import Controller.JogoController
+import Controller.UsuarioController
 import Data.Time.Clock (getCurrentTime, utctDay)  
 import Data.Time.Calendar (Day)
 
-temSaldo :: Connection -> Int -> Int -> IO Bool
+import Data.Int (Int64)
+
+
+temSaldo :: Connection -> Int64 -> Int64 -> IO Bool
 temSaldo conn idUser idJogo = do
     precoJogo <- getPrecoDoJogo conn idJogo
     saldoUser <- getSaldoUsuario conn idUser
     return (saldoUser >= precoJogo)
 
 
-naoComprouJogo:: Connection -> Int -> Int -> IO Bool
+naoComprouJogo:: Connection -> Int64 -> Int64 -> IO Bool
 naoComprouJogo conn idUser idJogo = do
     [Only count] <- query conn querySQL (idUser, idJogo)
     return (count == (0 :: Int))
@@ -24,7 +27,7 @@ naoComprouJogo conn idUser idJogo = do
     querySQL = "SELECT COUNT(*) FROM compra WHERE user_id = ? AND game_id = ?"
 
 
-realizaCompra :: Connection -> Int -> Int -> IO ()
+realizaCompra :: Connection -> Int64 -> Int64 -> IO ()
 realizaCompra conn idUser idJogo = do
     jogoExiste <- existeJogo conn idJogo
     podeComprar <- temSaldo conn idUser idJogo
