@@ -45,6 +45,8 @@ executable plp
     other-modules:      Controller.User,
                         Controller.Cliente,
                         Controller.Util,
+                        Controllers.CompraController,
+                        Controllers.UsuarioController,
                         Controller.JogoController,
                         LocalDB.ConnectionDB,
                         Models.Compra,
