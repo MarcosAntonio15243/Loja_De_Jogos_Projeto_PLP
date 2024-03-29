@@ -8,6 +8,10 @@ Para facilitar a busca de jogos por parte do usuário, além da pesquisa por nom
 
 O usuário administrador tem privilégios no sistema, como cadastrar jogos, atualizar jogos, ter um dashboard com diversas estatísticas do sistema e analisar as denúncias feitas pelos usuários.  
 
+# :gear::clipboard: Funcionalidades  
+
+# :wrench::computer: Como executar  
+
 # 👨‍💻👩‍💻 Equipe  
 
 - [Marcos Vinícius](https://github.com/marcosfragoso)
