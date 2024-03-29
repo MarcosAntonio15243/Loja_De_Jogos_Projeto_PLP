@@ -13,23 +13,3 @@ VALUES
 ('Bloodborne', 'RPG de ação', 'Um RPG de ação desafiador ambientado em um mundo de terror gótico.', '2015-03-24', 9, 39.99),
 ('Marvel''s Spider-Man', 'Ação e aventura', 'Um jogo de ação e aventura baseado no popular super-herói da Marvel.', '2018-09-07', 8, 39.99),
 ('God of War', 'Ação e aventura', 'Um jogo de ação e aventura baseado na mitologia grega.', '2018-04-20', 9, 39.99);
-
-
-INSERT INTO usuario (user_nome, user_email, user_senha, user_tipo, user_saldo, user_date) VALUES
-    ('Administrador', 'admin@gmail.com', 'admin', 'Admin', 100, '2024-03-11'),
-    ('João Silva', 'joao@example.com', '123456', 'Padrão',100, '2024-03-11'),
-    ('Maria Santos', 'maria@example.com', 'password123', 'Padrão',100, '2024-03-11'),
-    ('Carlos Oliveira', 'carlos@example.com', 'abcdef', 'Padrão',100, '2024-03-11');
-
-
-INSERT INTO compra (compra_data, compra_price, user_id, game_id) VALUES
-    ('2024-03-11', 49.99, 2, 1),  -- Compra 1: João Silva comprou The Witcher 3: Wild Hunt
-    ('2024-03-11', 29.99, 3, 2),  -- Compra 2: Maria Santos comprou Grand Theft Auto V
-    ('2024-03-11', 59.99, 4, 3),  -- Compra 3: Carlos Oliveira comprou Red Dead Redemption 2
-    ('2024-03-11', 69.99, 2, 4),  -- Compra 4: João Silva comprou The Last of Us Part II
-    ('2024-03-11', 39.99, 3, 5),  -- Compra 5: Maria Santos comprou Dark Souls III
-    ('2024-03-11', 19.99, 4, 6),  -- Compra 6: Carlos Oliveira comprou Horizon Zero Dawn
-    ('2024-03-11', 59.99, 2, 7),  -- Compra 7: João Silva comprou Final Fantasy VII Remake
-    ('2024-03-11', 49.99, 3, 8),  -- Compra 8: Maria Santos comprou Assassin's Creed Valhalla
-    ('2024-03-11', 59.99, 4, 9),  -- Compra 9: Carlos Oliveira comprou Cyberpunk 2077
-    ('2024-03-11', 49.99, 2, 10); -- Compra 10: João Silva comprou Ghost of Tsushima

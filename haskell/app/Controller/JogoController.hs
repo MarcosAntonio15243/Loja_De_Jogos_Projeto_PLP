@@ -161,6 +161,7 @@ registrarAvaliacao conn gameID userID avaliacao = do
 
     if avaliacaoAtual == (-1) then do
         _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
+        atualizaAvaliacaoJogo conn gameID
         putStrLn "============================================================"
         putStrLn "             Avaliação atualizada com sucesso!              "
         putStrLn "============================================================"
@@ -176,10 +177,8 @@ registrarAvaliacao conn gameID userID avaliacao = do
 
         case opcao of
             "y" -> do 
-                execute_ conn "BEGIN"
                 _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
                 atualizaAvaliacaoJogo conn gameID
-                execute_ conn "COMMIT"
                 putStrLn "============================================================"
                 putStrLn "             Avaliação atualizada com sucesso!              "
                 putStrLn "============================================================"

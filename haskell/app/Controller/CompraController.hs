@@ -11,6 +11,8 @@ import Data.Time.Calendar (Day)
 
 import Data.Int (Int64)
 
+import Controller.Util
+
 
 temSaldo :: Connection -> Int64 -> Int64 -> IO Bool
 temSaldo conn idUser idJogo = do
@@ -32,7 +34,7 @@ realizaCompra conn idUser idJogo = do
     jogoExiste <- existeJogo conn idJogo
     podeComprar <- temSaldo conn idUser idJogo
     naoPossuiJogo <- naoComprouJogo conn idUser idJogo
-    
+    limparTela
     if jogoExiste && podeComprar && naoPossuiJogo
         then do
             precoJogo <- getPrecoDoJogo conn idJogo

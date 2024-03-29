@@ -73,6 +73,7 @@ menuJogos conn user_id = do
                 realizaCompra conn user_id (jogoId)
                 menuCliente conn user_id
             else do
+                limparTela
                 menuJogos conn user_id
 
 mensagens::Connection->Int64->IO()
