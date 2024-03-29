@@ -85,7 +85,7 @@ getJogosPorGenero conn genero = do
 
 getJogosOrdenadosPorDataLancamento:: Connection -> IO [Jogo]
 getJogosOrdenadosPorDataLancamento conn = do
-    query_ conn "SELECT * FROM jogo ORDER BY game_data_lancamento" :: IO [Jogo]
+    query_ conn "SELECT * FROM jogo ORDER BY game_data_lancamento DESC LIMIT 5" :: IO [Jogo]
 
 
 getJogosOrdenadosPorNome:: Connection -> IO [Jogo]
@@ -98,9 +98,9 @@ getJogosOrdenadosPorPreco conn = do
     query_ conn "SELECT * FROM jogo ORDER BY game_price" :: IO [Jogo]
 
 
-getJogosOrdenadosPorAvaliacao:: Connection -> IO [Jogo]
+getJogosOrdenadosPorAvaliacao :: Connection -> IO [Jogo]
 getJogosOrdenadosPorAvaliacao conn = do
-    query_ conn "SELECT * FROM jogo ORDER BY game_avaliacao" :: IO [Jogo]
+    query_ conn "SELECT * FROM jogo ORDER BY game_avaliacao DESC LIMIT 5" :: IO [Jogo]
 
 
 getPrecoDoJogo :: Connection -> Int64 -> IO Double
