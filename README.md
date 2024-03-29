@@ -9,6 +9,26 @@ Para facilitar a busca de jogos por parte do usuário, além da pesquisa por nom
 O usuário administrador tem privilégios no sistema, como cadastrar jogos, atualizar jogos, ter um dashboard com diversas estatísticas do sistema e analisar as denúncias feitas pelos usuários.  
 
 # :gear::clipboard: Funcionalidades  
+- **Gerais**
+  - Criar conta;
+  - Fazer login.
+ 
+- **Administrador**
+  - Adicionar, atualizar, visualizar e remover jogos;
+  - Analisar denúncias;
+  - Visualizar dashboard com estatísticas do sistema.
+
+- **Usuário padrão**
+  - Visualizar jogos disponíveis (A visualização pode ser filtrada por gênero, mais vendidos, data de lançamento, mais avaliados, nome e preço);
+  - Comprar jogos disponíveis;
+  - Avaliar jogos;
+  - Favoritar jogos;
+  - Gerenciar carteira digital (depósito e consulta de saldo);
+  - Comentar jogo;
+  - Denunciar jogo;
+  - Conversar através de chat privado com outros usuários.
+
+  
 
 # :wrench::computer: Como executar  
 
