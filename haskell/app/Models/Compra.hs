@@ -7,11 +7,15 @@ data Compra = Compra {
     compra_data:: Day,
     compra_price:: Double,
     user_id:: Int,
-    game_id:: Int
+    game_id:: Int,
+    avaliacao_compra:: Int,
+    favoritar:: Bool
 } deriving (Show, Read, Eq)
 
 instance FromRow Compra where
     fromRow = Compra  <$> field
+                    <*> field
+                    <*> field
                     <*> field
                     <*> field
                     <*> field

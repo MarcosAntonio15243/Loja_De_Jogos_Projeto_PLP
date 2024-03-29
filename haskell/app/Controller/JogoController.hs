@@ -176,7 +176,10 @@ registrarAvaliacao conn gameID userID avaliacao = do
 
         case opcao of
             "y" -> do 
+                execute_ conn "BEGIN"
                 _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
+                atualizaAvaliacaoJogo conn gameID
+                execute_ conn "COMMIT"
                 putStrLn "============================================================"
                 putStrLn "             Avaliação atualizada com sucesso!              "
                 putStrLn "============================================================"
@@ -186,6 +189,26 @@ registrarAvaliacao conn gameID userID avaliacao = do
                 putStrLn "============================================================"
             _ -> putStrLn "\ESC[91mOpção inválida!\ESC[0m"
                     
+atualizaAvaliacaoJogo::Connection->Int64->IO()
+atualizaAvaliacaoJogo conn game_id = do
+    num <- getNumAvaliacoes conn game_id
+    if (num == 0) then do
+        execute conn "UPDATE jogo SET game_avaliacao = ? WHERE game_id = ?" (0::Float, game_id)
+    else do
+        sum <- getSumAvaliacoes conn game_id
+        let avaliacao = (fromIntegral sum) / (fromIntegral num) :: Float
+        execute conn "UPDATE jogo SET game_avaliacao = ? WHERE game_id = ?" (avaliacao, game_id)
+    return()
+
+getSumAvaliacoes::Connection->Int64->IO Int
+getSumAvaliacoes conn game_id = do
+    [Only sumAvaliacoes] <- query conn "SELECT SUM(avaliacao_compra) FROM compra WHERE game_id = ? AND avaliacao_compra >= 0" (Only game_id)
+    return sumAvaliacoes
+
+getNumAvaliacoes::Connection->Int64->IO Int
+getNumAvaliacoes conn game_id = do
+    [Only numAvaliacoes] <- query conn "SELECT COUNT(avaliacao_compra) FROM compra WHERE game_id = ? AND avaliacao_compra >= 0" (Only game_id)
+    return numAvaliacoes
         
 registrarComentario :: Connection -> Int64 -> Int64 -> String -> IO()
 registrarComentario conn gameID userID comentario = do
