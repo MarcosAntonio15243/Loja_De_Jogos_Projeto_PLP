@@ -39,7 +39,7 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
    - [Tutorial para Linux Mint (Em caso de problemas no vídeo acima)](https://www.youtube.com/watch?v=rDh3iq8nmDg)
      
 3. Após a instalação, entre no pgAdmin e crie a database com o nome "lojajogos"
-4. Configurações iniciais
+4. Configurações iniciais:
    - Caso peça para configurar username e password antes do passo 2, configure da seguinte forma:
      
       ```
