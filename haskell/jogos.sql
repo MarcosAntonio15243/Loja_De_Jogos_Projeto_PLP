@@ -1,3 +1,6 @@
+INSERT INTO usuario (user_nickname, user_nome, user_email, user_senha, user_tipo, user_date, user_saldo)
+VALUES ('admin', 'Admin', 'admin@gmail.com', 'admin', 'Administrador', '2024-03-03', 0)
+
 INSERT INTO jogo (game_nome, game_genero, game_description, game_data_lancamento, game_avaliacao, game_price) 
 VALUES 
 ('The Witcher 3: Wild Hunt', 'RPG de ação', 'Um RPG de ação épico ambientado em um mundo de fantasia aberto.', '2015-05-19', 9, 49.99),

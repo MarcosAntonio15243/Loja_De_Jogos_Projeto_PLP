@@ -8,6 +8,7 @@ import Data.Maybe (listToMaybe)
 
 import Controller.Util
 import Controller.Cliente (menuCliente)
+import Controller.Admin (menuInicialAdmin)
 
 menuInicial::Connection -> IO()
 menuInicial conn = do
@@ -72,7 +73,8 @@ login conn = do
                     limparTela
                     menuCliente conn user_id
                 else do
-                    putStrLn "Administrador" -- Transição para as telas do Administrador
+                    limparTela
+                    menuInicialAdmin conn -- Transição para as telas do Administrador
                 -- Caso o usuário deslogue:
                 menuInicial conn
             Nothing -> do
