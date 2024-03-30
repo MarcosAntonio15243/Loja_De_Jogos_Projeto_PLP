@@ -31,6 +31,27 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
   
 
 # :wrench::computer: Como executar  
+## Instalação do PostgreSQL
+1. Baixe o PostgreSQL:
+   
+   - [Tutorial para Windows](https://www.youtube.com/watch?v=L_2l8XTCPAE&list=LL&index=5)
+   - [Tutorial para Linux Ubuntu](https://www.youtube.com/watch?v=1jSb4LJH1dw)
+   - [Tutorial para Linux Mint (Em caso de problemas no vídeo acima)](https://www.youtube.com/watch?v=rDh3iq8nmDg)
+     
+3. Após a instalação, entre no pgAdmin e crie a database com o nome "lojajogos"
+4. Configurações iniciais
+   - Caso peça para configurar username e password antes do passo 2, configure da seguinte forma:
+     
+      ```
+      username: postgres
+      password: postgres
+      host name/address: localhost
+      port: 5432
+      ```
+   - Caso não peça, clique com o botão direito no servidor onde está sua database, vá em connection e configure com as informações acima.
+
+       
+**Observação**: A configuração deve seguir a mesma que o tutorial acima. Caso contrário, a aplicação pode resultar em erros. 
 
 # 👨‍💻👩‍💻 Equipe  
 
