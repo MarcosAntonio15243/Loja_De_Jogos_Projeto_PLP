@@ -77,6 +77,9 @@ getJogosAteDeterminadoPreco :: Connection -> Double -> IO [Jogo]
 getJogosAteDeterminadoPreco conn preco = do
     query conn "SELECT * FROM jogo WHERE game_price <= ?" (Only preco) :: IO [Jogo]
 
+getJogosPrecoMinimo :: Connection -> Double -> IO [Jogo]
+getJogosPrecoMinimo conn preco = do
+    query conn "SELECT * FROM jogo WHERE game_price >= ?" (Only preco) :: IO [Jogo]
 
 getJogosPorGenero :: Connection -> String -> IO [Jogo]
 getJogosPorGenero conn genero = do
@@ -85,7 +88,7 @@ getJogosPorGenero conn genero = do
 
 getJogosOrdenadosPorDataLancamento:: Connection -> IO [Jogo]
 getJogosOrdenadosPorDataLancamento conn = do
-    query_ conn "SELECT * FROM jogo ORDER BY game_data_lancamento DESC LIMIT 5" :: IO [Jogo]
+    query_ conn "SELECT * FROM jogo ORDER BY game_data_lancamento DESC" :: IO [Jogo]
 
 
 getJogosOrdenadosPorNome:: Connection -> IO [Jogo]
@@ -97,10 +100,23 @@ getJogosOrdenadosPorPreco:: Connection -> IO [Jogo]
 getJogosOrdenadosPorPreco conn = do
     query_ conn "SELECT * FROM jogo ORDER BY game_price" :: IO [Jogo]
 
+getJogosOrdenadosPorMaiorPreco:: Connection -> IO [Jogo]
+getJogosOrdenadosPorMaiorPreco conn = do
+    query_ conn "SELECT * FROM jogo ORDER BY game_price DESC" :: IO [Jogo]
 
 getJogosOrdenadosPorAvaliacao :: Connection -> IO [Jogo]
 getJogosOrdenadosPorAvaliacao conn = do
-    query_ conn "SELECT * FROM jogo ORDER BY game_avaliacao DESC LIMIT 5" :: IO [Jogo]
+    query_ conn "SELECT * FROM jogo ORDER BY game_avaliacao DESC" :: IO [Jogo]
+
+getJogosMaisVendidos :: Connection -> IO [Jogo]
+getJogosMaisVendidos conn = do
+    query_ conn "SELECT j.game_id, j.game_nome, j.game_genero, j.game_description, \
+        \j.game_data_lancamento, j.game_avaliacao, j.game_price \
+    \FROM jogo j \
+    \JOIN compra c ON j.game_id = c.game_id \
+    \GROUP BY j.game_id, j.game_nome, j.game_genero, j.game_description, \
+        \j.game_data_lancamento, j.game_avaliacao, j.game_price \
+    \ORDER BY COUNT(c.game_id) DESC" :: IO [Jogo]
 
 
 getPrecoDoJogo :: Connection -> Int64 -> IO Double

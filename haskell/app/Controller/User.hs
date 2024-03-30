@@ -123,7 +123,7 @@ criarConta conn = do
             else do
                 limparTela
                 cadastrarConta conn nickname nome email senha
-                putStrLn "Cadastro realizado com sucesso!"
+                putStrLn "\ESC[92mCadastro realizado com sucesso!\ESC[0m"
                 menuInicial conn
 
 

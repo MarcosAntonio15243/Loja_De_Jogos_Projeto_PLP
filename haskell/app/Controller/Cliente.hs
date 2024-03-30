@@ -13,6 +13,7 @@ import Data.Char
 
 import Controller.CompraController
 import Text.Printf
+import Models.Jogo
 
 menuCliente::Connection->Int64->IO()
 menuCliente conn user_id = do
@@ -37,7 +38,7 @@ menuCliente conn user_id = do
             limparTela
 
             case opcao of
-                "1" -> do menuJogos conn user_id
+                "1" -> do filtrarMenuJogos conn user_id --menuJogos conn user_id
                 "2" -> do mensagens conn user_id
                 "3" -> do perfilCliente conn user_id
                 "4" -> do
@@ -47,34 +48,145 @@ menuCliente conn user_id = do
                     menuCliente conn user_id
         Nothing -> do putStrLn "Id usuário Inválido!"
 
-menuJogos::Connection->Int64->IO()
-menuJogos conn user_id = do
+filtrarMenuJogos::Connection->Int64->IO()
+filtrarMenuJogos conn user_id = do
+    putStrLn "================================================================================"
+    putStrLn "                                JOGOS DISPONÍVEIS                               "
+    putStrLn "================================================================================"
+    putStrLn "Filtrar por:"
+    putStrLn ""
+    putStrLn "1 - Nome"
+    putStrLn "2 - Gênero"
+    putStrLn "3 - Preço"
+    putStrLn "4 - Mais vendidos"
+    putStrLn "5 - Lançados Recentemente"
+    putStrLn "6 - Melhor Avaliados"
+    putStrLn "7 - Voltar"
+    putStrLn ""
+    putStrLn "================================================================================"
+    putStrLn "Selecione uma opção: "
+    
+    opcao <- getLine
+    
+    case opcao of
+        "1" -> do
+            limparTela
+            putStrLn "Jogos filtrados por: \ESC[94mNome\ESC[0m"
+            jogos <- getJogosOrdenadosPorNome conn
+            menuJogos conn user_id jogos
+        "2" -> do
+            putStrLn "Digite um gênero de jogo: "
+            genero <- getLine
+            limparTela
+            putStrLn ("Jogos filtrados por: \ESC[94mGênero (" ++ genero ++ ")\ESC[0m")
+            jogos <- getJogosPorGenero conn genero
+            menuJogos conn user_id jogos
+        "3" -> do
+            limparTela
+            putStrLn "Opções: "
+            putStrLn ""
+            putStrLn "1 - Menor Preço"
+            putStrLn "2 - Maior Preço"
+            putStrLn "3 - Preço máximo"
+            putStrLn "4 - Preço mínimo"
+            putStrLn ""
+            putStrLn "Selecione uma opção: "
+            putStrLn "--------------------------------------------------------------------------------"
+            opcaoPreco <- getLine
+            case opcaoPreco of
+                "1" -> do
+                    limparTela
+                    putStrLn ("Jogos filtrados por: \ESC[94mMenor Preço\ESC[0m")
+                    jogos <- getJogosOrdenadosPorPreco conn
+                    menuJogos conn user_id jogos
+                "2" -> do
+                    limparTela
+                    putStrLn ("Jogos filtrados por: \ESC[94mMaior Preço\ESC[0m")
+                    jogos <- getJogosOrdenadosPorMaiorPreco conn
+                    menuJogos conn user_id jogos
+                "3" -> do
+                    putStrLn "Digite um preço máximo: "
+                    precoMaximo <- getLine
+                    let preco = read precoMaximo :: Double
+                    limparTela
+                    putStrLn ("Jogos filtrados por: \ESC[94mPreço máximo (R$ " ++ precoMaximo ++ ")\ESC[0m")
+                    jogos <- getJogosAteDeterminadoPreco conn preco
+                    menuJogos conn user_id jogos
+                "4" -> do
+                    putStrLn "Digite um preço mínimo: "
+                    precoMinimo <- getLine
+                    let preco = read precoMinimo :: Double
+                    limparTela
+                    putStrLn ("Jogos filtrados por: \ESC[94mPreço mínimo (R$ " ++ precoMinimo ++ ")\ESC[0m")
+                    jogos <- getJogosPrecoMinimo conn preco
+                    menuJogos conn user_id jogos
+        "4" -> do
+            limparTela
+            putStrLn ("Jogos filtrados por: \ESC[94mMais Vendidos\ESC[0m")
+            jogos <- getJogosMaisVendidos conn
+            menuJogos conn user_id jogos
+        "5" -> do
+            limparTela
+            putStrLn ("Jogos filtrados por: \ESC[94mLançados Recentemente\ESC[0m")
+            jogos <- getJogosOrdenadosPorDataLancamento conn
+            menuJogos conn user_id jogos
+        "6" -> do
+            limparTela
+            putStrLn ("Jogos filtrados por: \ESC[94mMelhor Avaliados\ESC[0m")
+            jogos <- getJogosOrdenadosPorAvaliacao conn
+            menuJogos conn user_id jogos
+        "7" -> do
+            limparTela
+            menuCliente conn user_id
+        _ -> do
+            limparTela
+            putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
+            filtrarMenuJogos conn user_id
 
-    jogos <- getJogos conn
+
+menuJogos::Connection->Int64->[Jogo]->IO()
+menuJogos conn user_id jogos = do
+
     printJogos jogos
 
-    putStrLn "Digite um id (Ou tecle ENTER para sair): "
-    idJogo <- getLine
-    
-    if (Prelude.null idJogo) then do
-        limparTela
-        menuCliente conn user_id
+    if (jogos == []) then do
+        filtrarMenuJogos conn user_id
     else do
-        let jogoId = read idJogo :: Int64
-        jogo <- getJogoPorId conn jogoId 
+        putStrLn "Digite um id (Ou tecle ENTER para sair): "
+        idJogo <- getLine
         limparTela
-        if (jogo == []) then do
-            printJogoDetalhado jogo
-            desejaContinuar conn user_id (menuJogos)
+        if (Prelude.null idJogo) then do
+            filtrarMenuJogos conn user_id
         else do
-            printJogoDetalhado jogo
-            opcao <- getLine
-            if (opcao == "s" || opcao == "S") then do
-                realizaCompra conn user_id (jogoId)
-                menuCliente conn user_id
+            let jogoId = read idJogo :: Int64
+            let jogo = filter (\game -> fromIntegral(game_id game) == jogoId) jogos
+            if (jogo == []) then do
+                printJogoDetalhado jogo
+                desejaContinuarMenuJogos conn user_id (menuJogos) jogos
             else do
-                limparTela
-                menuJogos conn user_id
+                printJogoDetalhado jogo
+                opcao <- getLine
+                if (opcao == "s" || opcao == "S") then do
+                    realizaCompra conn user_id (jogoId)
+                    filtrarMenuJogos conn user_id
+                else do
+                    limparTela
+                    menuJogos conn user_id jogos
+
+desejaContinuarMenuJogos::Connection->Int64->(Connection->Int64->[Jogo]->IO())->[Jogo]->IO()
+desejaContinuarMenuJogos conn user_id funcao jogos = do
+    putStrLn "Deseja continuar? (s/n)"
+    opcao <- getLine
+    if (opcao == "s" || opcao == "S") then do
+        limparTela
+        funcao conn user_id jogos
+    else if (opcao == "n" || opcao == "N") then do
+        limparTela
+        filtrarMenuJogos conn user_id
+    else do
+        putStrLn "Opção Inválida!"
+        desejaContinuarMenuJogos conn user_id funcao jogos
+
 
 mensagens::Connection->Int64->IO()
 mensagens conn user_id = do
