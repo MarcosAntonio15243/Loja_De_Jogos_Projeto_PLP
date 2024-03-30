@@ -17,7 +17,7 @@ menuInicial conn = do
     putStrLn "3 - Sair"
     putStrLn ""
     putStrLn "============================================================"
-    putStr "Selecione uma opção:  "
+    putStrLn "Selecione uma opção:  "
 
     opcao <- getLine
 
@@ -25,10 +25,10 @@ menuInicial conn = do
 
     case opcao of
         "1" -> do
-            putStrLn "Preencha seus dados abaixo:\n"
+            putStrLn "Preencha seus dados abaixo:"
             login conn
         "2" -> do
-            putStrLn "Preencha seus dados abaixo:\n"
+            putStrLn "Preencha seus dados abaixo:"
             criarConta conn
         "3" -> return ()
         _ -> do
