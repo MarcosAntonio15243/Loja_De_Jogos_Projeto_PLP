@@ -51,7 +51,7 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
    - Caso não peça, clique com o botão direito no servidor onde está sua database, vá em connection e configure com as informações acima.
 
        
-**Observação**: A configuração deve seguir a mesma que o tutorial acima. Caso contrário, a aplicação pode resultar em erros. 
+___Observação: A configuração deve seguir a mesma que o tutorial acima. Caso contrário, a aplicação pode resultar em erros.___
 
 # 👨‍💻👩‍💻 Equipe  
 
