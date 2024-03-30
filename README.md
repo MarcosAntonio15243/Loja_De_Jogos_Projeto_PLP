@@ -51,8 +51,16 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
    - Caso não peça, clique com o botão direito no servidor onde está sua database, vá em connection e configure com as informações acima.
 4. Após as configurações, execute o projeto e em seguida copie o conteúdo do arquivo jogos.sql, cole na Query Tool do pgAdmin e execute para popular alguns jogos na sua base de dados.
        
-___Observação: A configuração deve seguir a mesma que o tutorial acima. Caso contrário, a aplicação pode resultar em erros.___
+___Observação: A configuração deve seguir a mesma que o tutorial acima. Caso contrário, a aplicação pode resultar em erros.___  
 
+## Instalação do Haskell
+1. Faça a instalação do [GHCup](https://www.haskell.org/ghcup/)
+2. Depois de configurar seu PostgreSQL, abra o terminal no diretório "haskell" e rode os comandos `cabal init -n` e `cabal build`
+3. Caso não ocorra erros, digite `cabal run`
+
+___Observação 1: Caso esteja usando Visual Studio Code, baixe as extensões necessárias.___  
+___Observação 2: Em caso de erro na lib "base", você pode alterar a versão manualmente no arquivo "plp.cabal" com a versão da sua máquina.___
+   
 # 👨‍💻👩‍💻 Equipe  
 
 - [Marcos Vinícius](https://github.com/marcosfragoso)
