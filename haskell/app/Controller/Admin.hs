@@ -15,6 +15,8 @@ import Data.Text.Encoding (encodeUtf32BE)
 menuInicialAdmin::Connection -> IO()
 menuInicialAdmin conn = do
     putStrLn "================================================================================"
+    putStrLn "                             HOME - ADMINISTRADOR                               "
+    putStrLn "================================================================================"
     putStrLn "MENU:"
     putStrLn ""
     putStrLn "1 - Adicionar Jogo"
@@ -56,6 +58,9 @@ menuInicialAdmin conn = do
 
 adicionarJogo::Connection->IO()
 adicionarJogo conn = do
+    putStrLn "================================================================================"
+    putStrLn "                             ADICIONAR NOVO JOGO                                "
+    putStrLn "================================================================================"
     putStrLn "Digite os dados do jogo abaxo:"
     putStrLn "================================================================================"
     putStrLn "Digite o nome:"

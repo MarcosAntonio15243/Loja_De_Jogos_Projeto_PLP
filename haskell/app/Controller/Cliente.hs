@@ -599,6 +599,7 @@ avaliarJogo conn gameID userID = do
     putStrLn "Insira uma nota de 0 a 10 > "
 
     nota <- getLine
+    limparTela
 
     let maybeNota = readMaybe nota :: Maybe Int
     case maybeNota of

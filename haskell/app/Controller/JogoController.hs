@@ -13,6 +13,8 @@ import Data.Maybe (listToMaybe)
 import Data.List (sortBy)
 import Data.Time
 
+import Text.Printf
+
 
 printJogos :: [Jogo] -> IO ()
 printJogos [] = putStrLn "Nenhum jogo encontrado."
@@ -51,11 +53,11 @@ printJogoDetalhado jogos = do
       putStrLn $ "Gênero: " ++ game_genero jogo
       putStrLn $ "Descrição: " ++ game_description jogo
       putStrLn $ "Data de Lançamento: " ++ show (game_data_lancamento jogo)
-      putStrLn $ "Avaliação: " ++ show (game_avaliacao jogo)
+      putStrLn $ "Avaliação: " ++  (printf "%.1f" (game_avaliacao jogo))
       putStrLn $ "Preço: " ++ show (game_price jogo)
       putStrLn $ "\ESC[1m\ESC[32mComprar jogo? [s/n] \ESC[0m"
       putStrLn $ replicate 80 '-'
-
+      
 
 getJogos:: Connection -> IO [Jogo]
 getJogos conn = do

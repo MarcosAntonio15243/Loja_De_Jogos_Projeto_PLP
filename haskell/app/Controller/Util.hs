@@ -165,7 +165,10 @@ alterarNome conn id = do
     case maybeNomeAtual of
         Just nomeAtual -> do
             limparTela
-            if nomeAtual == nomeDesejado then
+
+            if (Prelude.null nomeDesejado) then
+                erroTenteNovamente "OPS, o nome não pode ser vazio." (alterarNome conn id)
+            else if nomeAtual == nomeDesejado then
                 erroTenteNovamente "OPS, o nome inserido é igual ao nome atual." (alterarNome conn id)
 
             else do
@@ -189,7 +192,9 @@ alterarNick conn id = do
         Just nickAtual -> do
             limparTela
 
-            if nickAtual == nickDesejado then
+            if (Prelude.null nickDesejado) then
+                erroTenteNovamente "OPS, o nick não pode ser vazio." (alterarNick conn id)
+            else if nickAtual == nickDesejado then
                 erroTenteNovamente "OPS, o nick inserido é igual ao nick atual." (alterarNick conn id)
 
             else if nickExiste then
@@ -217,7 +222,9 @@ alterarEmail conn id = do
         Just emailAtual -> do
             limparTela
 
-            if emailAtual == emailDesejado then
+            if (Prelude.null emailDesejado) then
+                erroTenteNovamente "OPS, o email não pode ser vazio." (alterarEmail conn id)
+            else if emailAtual == emailDesejado then
                 erroTenteNovamente "OPS, o email inserido é igual ao email atual." (alterarEmail conn id)
 
             else if emailExiste then
@@ -244,7 +251,9 @@ alterarSenha conn id = do
         maybeSenhaAtual <- getSenhaByID conn id
         let senhaAtual = fromMaybe "Senha não encontrada" maybeSenhaAtual
 
-        if senhaAtual == novaSenha then
+        if (Prelude.null novaSenha) then
+            erroTenteNovamente "OPS, a senha não pode ser vazia." (alterarSenha conn id)
+        else if senhaAtual == novaSenha then
             erroTenteNovamente "Ops, a nova senha é igual a senha atual" (alterarSenha conn id)
 
         else do
@@ -280,7 +289,7 @@ deletaConta conn userID = do
     _ <- execute conn "DELETE FROM denuncia WHERE id_usuario = ?" (Only userID) -- deleta todas as denuncias
     _ <- execute conn "DELETE FROM mensagem WHERE id_remetente = ?" (Only userID) -- deleta todas as mensagens que o usuario enviou
     _ <- execute conn "DELETE FROM usuario WHERE user_id = ?" (Only userID) -- por fim, deleta o usuario
-
+    limparTela
     putStrLn "================================================================================"
     putStrLn "                          Sua conta foi deletada!                               "
     putStrLn "================================================================================"
