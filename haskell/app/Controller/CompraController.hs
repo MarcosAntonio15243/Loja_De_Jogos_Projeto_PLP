@@ -49,5 +49,5 @@ realizaCompra conn idUser idJogo = do
             let novoSaldo = saldoAtual - precoJogo
             setSaldoUsuario conn idUser novoSaldo
 
-            putStrLn "Compra realizada com sucesso!"
-        else putStrLn "Não foi possível realizar a compra. Verifique se o jogo existe, se você possui saldo suficiente para comprá-lo, e se você já possui o jogo."
+            putStrLn "\ESC[92mCompra realizada com sucesso!\ESC[0m"
+        else putStrLn "\ESC[91mNão foi possível realizar a compra. Verifique se o jogo existe, se você possui saldo suficiente para comprá-lo, e se você já possui o jogo.\ESC[0m"

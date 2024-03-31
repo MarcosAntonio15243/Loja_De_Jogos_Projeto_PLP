@@ -57,7 +57,7 @@ printJogoDetalhado jogos = do
       putStrLn $ "Preço: " ++ show (game_price jogo)
       putStrLn $ "\ESC[1m\ESC[32mComprar jogo? [s/n] \ESC[0m"
       putStrLn $ replicate 80 '-'
-      
+
 
 getJogos:: Connection -> IO [Jogo]
 getJogos conn = do
@@ -190,7 +190,7 @@ registrarAvaliacao conn gameID userID avaliacao = do
         putStrLn "================================================================================"
 
     else do
-        putStrLn "============================================================"
+        putStrLn "================================================================================"
         putStrLn "\ESC[91mOPS, parece que você ja avaliou este jogo anteriormente\ESC[0m"
         putStrLn $ "Essa é sua avaliação atual: Nota " ++ show avaliacaoAtual
         putStrLn "Deseja alterá-la? (y/n) >"

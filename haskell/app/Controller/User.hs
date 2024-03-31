@@ -53,7 +53,7 @@ login::Connection->IO()
 login conn = do
     limparTela
     putStrLn "================================================================================"
-    putStrLn "                                       LOGIN                                    "
+    putStrLn "                                      LOGIN                                     "
     putStrLn "================================================================================"
     putStrLn "Preencha seus dados abaixo:"
     putStrLn ""

@@ -53,7 +53,8 @@ menuInicialAdmin conn = do
             limparTela
             return()
         _ -> do
-            putStrLn "Opção inválida! Por favor, tente novamente."
+            limparTela
+            putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
             menuInicialAdmin conn
 
 adicionarJogo::Connection->IO()
@@ -136,11 +137,16 @@ exibirJogo conn = do
     nomeJogo <- getLine
 
     jogoExiste <- checarNomeDeJogoExistente conn nomeJogo
+    limparTela
 
     if jogoExiste then do
         putStrLn ("Aqui estão as informações do jogo " ++ nomeJogo ++ ":")
         infoJogo <- obterInformacoesJogo conn nomeJogo
         mapM_ (mostraInformacoesJogo) infoJogo
+        putStrLn ""
+        putStrLn ("(Pressione qualquer tecla para voltar ao menu inicial)")
+        opcao <- getLine
+        limparTela
         menuInicialAdmin conn
 
     else do 
@@ -164,9 +170,10 @@ obterInformacoesJogo conn nomeJogo = do
 
 atualizarJogo::Connection -> IO()
 atualizarJogo conn = do
+    putStrLn "Jogos cadastrados no sistema: "
+    putStrLn ""
     result <- getNomeAndIDTodosJogos conn
     exibirJogosCliente result
-    putStrLn "================================================================================"
     putStrLn "Digite o id do jogo que deseja atualizar os dados: "
     idGame <- getLine
     let gameId = read idGame :: Int64
