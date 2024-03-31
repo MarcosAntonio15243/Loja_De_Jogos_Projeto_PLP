@@ -1,0 +1,5 @@
+# Pasta criada pelo Visual Studio Code
+.vscode/
+
+# Pasta criada pelo cabal build
+haskell/dist-newstyle/
