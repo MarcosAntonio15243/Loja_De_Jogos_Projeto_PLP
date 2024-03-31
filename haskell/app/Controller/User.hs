@@ -55,7 +55,7 @@ login conn = do
     putStrLn "================================================================================"
     putStrLn "                                       LOGIN                                    "
     putStrLn "================================================================================"
-    putStrLn "Preencha seus dados abaixo:\n"
+    putStrLn "Preencha seus dados abaixo:"
     putStrLn "Digite o e-mail:"
     email <- getLine
     putStrLn "Digite a senha:"

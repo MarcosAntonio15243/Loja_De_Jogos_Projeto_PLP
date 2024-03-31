@@ -10,7 +10,6 @@ import Controller.Util
 import Controller.JogoController
 import Text.Read (readMaybe)
 import Data.Char
-
 import Controller.CompraController
 import Text.Printf
 import Models.Jogo

@@ -145,6 +145,11 @@ getNomeAndIDJogos conn userID = do
     result <- query conn "SELECT j.game_id, j.game_nome FROM jogo j INNER JOIN compra c ON j.game_id = c.game_id WHERE c.user_id = ?" (Only userID)
     return result
 
+getNomeAndIDTodosJogos:: Connection -> IO [(Int64, String)]
+getNomeAndIDTodosJogos conn = do
+    result <- query_ conn "SELECT game_id, game_nome FROM jogo"
+    return result
+
 getNomeJogoByID :: Connection -> Int64 -> IO String
 getNomeJogoByID conn gameID = do
     result <- query conn "SELECT game_nome FROM jogo WHERE game_id = ?" (Only gameID)
@@ -259,14 +264,19 @@ registrarDenuncia conn gameID userID motivo = do
     case descricao of
         "sair" -> return() 
         _   -> do  
+            -- Obter a hora atual
+            currentTime <- getCurrentTime
+            -- Formatar a data atual (YYYY-MM-DD)
+            let dataFormatada = formatTime defaultTimeLocale "%Y-%m-%d" currentTime
             let insert = "INSERT INTO denuncia \
                                 \(id_usuario, \ 
                                 \id_jogo, \
                                 \denuncia_motivo, \
-                                \denuncia_descricao) \
-                                \values (?, ?, ?, ?)" 
+                                \denuncia_descricao, \
+                                \denuncia_data) \
+                                \values (?, ?, ?, ?, ?)" 
             execute_ conn "BEGIN"
-            _ <- execute conn insert (userID, gameID, motivo, descricao)
+            _ <- execute conn insert (userID, gameID, motivo, descricao, dataFormatada)
             execute_ conn "COMMIT"
             putStrLn "============================================================"
             putStrLn "     \ESC[91mDenúncia registrada.\ESC[0m Obrigado pela contribuição       "

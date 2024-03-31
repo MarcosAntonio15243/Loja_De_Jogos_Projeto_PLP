@@ -52,8 +52,8 @@ createCompras conn = do
                     \game_id INT NOT NULL,\
                     \avaliacao_compra INT DEFAULT (-1),\
                     \favoritar_jogo BOOLEAN DEFAULT (false),\
-                    \FOREIGN KEY (user_id) REFERENCES usuario(user_id),\
-                    \FOREIGN KEY (game_id) REFERENCES jogo(game_id));"
+                    \FOREIGN KEY (user_id) REFERENCES usuario(user_id) ON DELETE CASCADE,\
+                    \FOREIGN KEY (game_id) REFERENCES jogo(game_id) ON DELETE CASCADE);"
     return ()
 
 createMensagens :: Connection -> IO()
@@ -64,8 +64,8 @@ createMensagens conn = do
                     \id_destinatario INT NOT NULL,\
                     \message_texto TEXT NOT NULL,\
                     \message_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\
-                    \FOREIGN KEY (id_remetente) REFERENCES usuario(user_id),\
-                    \FOREIGN KEY (id_destinatario) REFERENCES usuario(user_id));"
+                    \FOREIGN KEY (id_remetente) REFERENCES usuario(user_id) ON DELETE CASCADE,\
+                    \FOREIGN KEY (id_destinatario) REFERENCES usuario(user_id) ON DELETE CASCADE);"
     return ()
 
 createComentarios :: Connection -> IO()
@@ -76,8 +76,8 @@ createComentarios conn = do
                     \id_jogo INT NOT NULL,\
                     \comentario_texto TEXT NOT NULL,\
                     \comentario_date DATE NOT NULL,\
-                    \FOREIGN KEY (id_usuario) REFERENCES usuario(user_id),\
-                    \FOREIGN KEY (id_jogo) REFERENCES jogo(game_id));"
+                    \FOREIGN KEY (id_usuario) REFERENCES usuario(user_id) ON DELETE CASCADE,\
+                    \FOREIGN KEY (id_jogo) REFERENCES jogo(game_id) ON DELETE CASCADE);"
     return ()
 
 createDenuncias :: Connection -> IO()
@@ -88,8 +88,9 @@ createDenuncias conn = do
                     \id_jogo INT NOT NULL,\
                     \denuncia_motivo VARCHAR(50) NOT NULL,\
                     \denuncia_descricao TEXT NOT NULL,\
-                    \FOREIGN KEY (id_usuario) REFERENCES usuario(user_id),\
-                    \FOREIGN KEY (id_jogo) REFERENCES jogo(game_id));"
+                    \denuncia_data DATE NOT NULL,\
+                    \FOREIGN KEY (id_usuario) REFERENCES usuario(user_id) ON DELETE CASCADE,\
+                    \FOREIGN KEY (id_jogo) REFERENCES jogo(game_id) ON DELETE CASCADE);"
     return ()
 
 iniciandoDatabase :: IO Connection

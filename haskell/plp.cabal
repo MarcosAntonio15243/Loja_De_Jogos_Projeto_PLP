@@ -52,7 +52,8 @@ executable plp
                         LocalDB.ConnectionDB,
                         Models.Compra,
                         Models.Jogo,
-                        Models.Usuario
+                        Models.Usuario,
+                        Models.Denuncia
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
