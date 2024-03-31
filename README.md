@@ -59,7 +59,7 @@ ___Observação: A configuração deve seguir a mesma que o tutorial acima. Caso
 3. Caso não ocorra erros, digite `cabal run`
 
 ___Observação 1: Caso esteja usando Visual Studio Code, baixe as extensões necessárias.___  
-___Observação 2: Em caso de erro na lib "base", você pode alterar a versão manualmente no arquivo "plp.cabal" com a versão da sua máquina.___
+___Observação 2: Em caso de erro na lib "base", você pode alterar a versão manualmente no arquivo "haskell.cabal" com a versão da sua máquina.___
    
 # 👨‍💻👩‍💻 Equipe  
 
