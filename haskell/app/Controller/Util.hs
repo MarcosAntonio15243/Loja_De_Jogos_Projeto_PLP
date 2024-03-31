@@ -113,9 +113,9 @@ addSaldoByID conn id saldoAdicionar = do
             
             _ <- execute conn "UPDATE usuario SET user_saldo = ? WHERE user_id = ?" (novoSaldo, id) -- atualiza saldo no bd
             limparTela
-            putStrLn "============================================================"
-            putStrLn "                 Saldo atualizado com sucesso!              "
-            putStrLn "============================================================"
+            putStrLn "================================================================================"
+            putStrLn "                        Saldo atualizado com sucesso!                           "
+            putStrLn "================================================================================"
         Nothing -> putStrLn "Não foi possível obter o saldo atual do usuário"
 
 getSenhaByID:: Connection -> Int64 -> IO (Maybe String)
@@ -127,7 +127,7 @@ getSenhaByID conn id = do
 
 solicitarSenha :: Connection -> Int64 -> IO Bool
 solicitarSenha conn userID = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Confirme sua \ESC[94msenha atual\ESC[0m:"
     senhaDigitada <- getLine
 
@@ -137,12 +137,12 @@ solicitarSenha conn userID = do
             if senhaReal == senhaDigitada then
                 return True
             else do
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
                 putStrLn "\ESC[91mSENHA INCORRETA\ESC[0m"
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
                 putStrLn "1. Tentar novamente"
                 putStrLn "2. Cancelar"
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
                 putStrLn "Selecione uma opção > "
 
                 opcao <- getLine
@@ -157,7 +157,7 @@ solicitarSenha conn userID = do
 
 alterarNome:: Connection -> Int64 -> IO ()
 alterarNome conn id = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Insira o nome desejado: "
     nomeDesejado <- getLine
     maybeNomeAtual <- getNomeByID conn id
@@ -170,15 +170,15 @@ alterarNome conn id = do
 
             else do
                 _ <- execute conn "UPDATE usuario SET user_nome = ? WHERE user_id = ?" (nomeDesejado, id)
-                putStrLn "============================================================"
-                putStrLn "                 Nome atualizado com sucesso!               "
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
+                putStrLn "                         Nome atualizado com sucesso!                           "
+                putStrLn "================================================================================"
 
         Nothing -> putStrLn "Nome atual não encontrado"
 
 alterarNick:: Connection -> Int64 -> IO ()
 alterarNick conn id = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Insira o nick desejado: "
 
     nickDesejado <- getLine
@@ -197,16 +197,16 @@ alterarNick conn id = do
 
             else do
                 _ <- execute conn "UPDATE usuario SET user_nickname = ? WHERE user_id = ?" (nickDesejado, id)
-                putStrLn "============================================================"
-                putStrLn "             Nickname atualizado com sucesso!               "
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
+                putStrLn "                       Nickname atualizado com sucesso!                         "
+                putStrLn "================================================================================"
 
 
         Nothing -> putStrLn "Nickname atual não encontrado"
 
 alterarEmail:: Connection -> Int64 -> IO ()
 alterarEmail conn id = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Insira o email desejado: "
 
     emailDesejado <- getLine
@@ -225,9 +225,9 @@ alterarEmail conn id = do
 
             else do
                 _ <- execute conn "UPDATE usuario SET user_email = ? WHERE user_id = ?" (emailDesejado, id)
-                putStrLn "============================================================"
-                putStrLn "              Email atualizado com sucesso!                 "
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
+                putStrLn "                         Email atualizado com sucesso!                          "
+                putStrLn "================================================================================"
 
         Nothing -> putStrLn "Email atual não encontrado"
 
@@ -237,7 +237,7 @@ alterarSenha conn id = do
     confirmarSenhaAtual <- solicitarSenha conn id
 
     Control.Monad.when confirmarSenhaAtual $ do -- Se der True vai executar o bloco "do", caso contrário apenas retorna
-        putStrLn "============================================================"
+        putStrLn "================================================================================"
         putStrLn "Insira a \ESC[94mnova senha\ESC[0m:" 
 
         novaSenha <- getLine
@@ -250,19 +250,19 @@ alterarSenha conn id = do
         else do
             limparTela
             _ <- execute conn "UPDATE usuario SET user_senha = ? WHERE user_id = ?" (novaSenha, id)
-            putStrLn "============================================================"
-            putStrLn "              Senha atualizada com sucesso!                 "
-            putStrLn "============================================================"
+            putStrLn "================================================================================"
+            putStrLn "                        Senha atualizada com sucesso!                           "
+            putStrLn "================================================================================"
 
 
 erroTenteNovamente:: String -> IO() -> IO()
 erroTenteNovamente message acao1 = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn $ "\ESC[91m"++ message ++"\ESC[0m"
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "1. Tentar novamente"
     putStrLn "2. Cancelar"
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Selecione uma opção > "
 
     opcao <- getLine
@@ -281,7 +281,7 @@ deletaConta conn userID = do
     _ <- execute conn "DELETE FROM mensagem WHERE id_remetente = ?" (Only userID) -- deleta todas as mensagens que o usuario enviou
     _ <- execute conn "DELETE FROM usuario WHERE user_id = ?" (Only userID) -- por fim, deleta o usuario
 
-    putStrLn "============================================================"
-    putStrLn "                 Sua conta foi deletada!                    "
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
+    putStrLn "                          Sua conta foi deletada!                               "
+    putStrLn "================================================================================"
     return ()

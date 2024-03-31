@@ -183,9 +183,9 @@ registrarAvaliacao conn gameID userID avaliacao = do
     if avaliacaoAtual == (-1) then do
         _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
         atualizaAvaliacaoJogo conn gameID
-        putStrLn "============================================================"
-        putStrLn "             Avaliação atualizada com sucesso!              "
-        putStrLn "============================================================"
+        putStrLn "================================================================================"
+        putStrLn "                      Avaliação atualizada com sucesso!                         "
+        putStrLn "================================================================================"
 
     else do
         putStrLn "============================================================"
@@ -200,13 +200,13 @@ registrarAvaliacao conn gameID userID avaliacao = do
             "y" -> do 
                 _ <- execute conn "UPDATE compra SET avaliacao_compra = ? WHERE game_id = ? and user_id = ?" (avaliacao, gameID, userID)
                 atualizaAvaliacaoJogo conn gameID
-                putStrLn "============================================================"
-                putStrLn "             Avaliação atualizada com sucesso!              "
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
+                putStrLn "                      Avaliação atualizada com sucesso!                         "
+                putStrLn "================================================================================"
             "n" -> do
-                putStrLn "============================================================"
-                putStrLn "           Sua avaliação ao jogo foi cancelada.             "
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
+                putStrLn "                    Sua avaliação ao jogo foi cancelada.                        "
+                putStrLn "================================================================================"
             _ -> putStrLn "\ESC[91mOpção inválida!\ESC[0m"
                     
 atualizaAvaliacaoJogo::Connection->Int64->IO()
@@ -245,16 +245,16 @@ registrarComentario conn gameID userID comentario = do
     execute_ conn "BEGIN"
     _ <- execute conn insert (userID, gameID, comentario, dataFormatada)
     execute_ conn "COMMIT"
-    putStrLn "============================================================"
-    putStrLn "            Comentário registrado com sucesso               "
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
+    putStrLn "                      Comentário registrado com sucesso                         "
+    putStrLn "================================================================================"
     return()
     
 registrarDenuncia:: Connection -> Int64 -> Int64 -> String-> IO()
 registrarDenuncia conn gameID userID motivo = do
-    putStrLn "============================================================"
-    putStrLn "Explique o motivo da denúncia, tente fornecer o máximo \nde detalhes possíveis."
-    putStrLn "\ESC[91mSua denúncia será enviada para o ADMIN, onde será \ndevidamente analisada\ESC[0m"
+    putStrLn "================================================================================"
+    putStrLn "Explique o motivo da denúncia, tente fornecer o máximo de detalhes possíveis."
+    putStrLn "\ESC[91mSua denúncia será enviada para o ADMIN, onde será devidamente analisada\ESC[0m"
     putStrLn ""
     putStrLn "Descreva sua denúncia ou \ESC[91mSAIR\ESC[0m para voltar > "
 
@@ -278,9 +278,9 @@ registrarDenuncia conn gameID userID motivo = do
             execute_ conn "BEGIN"
             _ <- execute conn insert (userID, gameID, motivo, descricao, dataFormatada)
             execute_ conn "COMMIT"
-            putStrLn "============================================================"
-            putStrLn "     \ESC[91mDenúncia registrada.\ESC[0m Obrigado pela contribuição       "
-            putStrLn "============================================================"
+            putStrLn "================================================================================"
+            putStrLn "       \ESC[91mDenúncia registrada.\ESC[0m Obrigado pela contribuição           "
+            putStrLn "================================================================================"
             return()
 
 
@@ -292,7 +292,7 @@ exibirJogosCliente jogos = do
     mapM_ putStrLn formatado  -- Imprime os jogos formatados
     putStrLn ""
     putStrLn "\ESC[91mA numeração ao lado do nome do jogo é seu ID\ESC[0m"
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
 
 -- Função auxiliar para preencher à esquerda
 padLeft :: Int -> Char -> String -> String

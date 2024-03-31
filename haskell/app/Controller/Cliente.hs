@@ -281,16 +281,16 @@ perfilCliente conn userID = do
     maybeNickname <- getNickByID conn userID
     case maybeNickname of
         Just nickname -> do
-            putStrLn "============================================================"
+            putStrLn "================================================================================"
             putStrLn ("\ESC[94m" ++ nickname ++ "\ESC[0m" ++ "'s Perfil      ")
-            putStrLn "============================================================"
+            putStrLn "================================================================================"
             putStrLn ""
             putStrLn "1 - Meus jogos"
             putStrLn "2 - Minha carteira"
             putStrLn "3 - Editar perfil"
             putStrLn "4 - Voltar"
             putStrLn ""
-            putStrLn "============================================================"
+            putStrLn "================================================================================"
             putStrLn "Selecione uma opção > "
 
             opcao <- getLine
@@ -317,20 +317,20 @@ carteiraCliente conn userID = do
 
     saldo <- getSaldoByID conn userID
 
-    putStrLn "============================================================"
-    putStrLn "                      Sua Carteira                          "
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
+    putStrLn "                              Sua Carteira                                      "
+    putStrLn "================================================================================"
     putStrLn ""
-    putStrLn "     ╔══════════════════════════════════════════════╗"
-    putStrLn "     ║                                              ║"
-    putStrLn $ "       Saldo Disponível: R$" ++ printf "%.2f" (fromJust saldo)
-    putStrLn "     ║                                              ║"
-    putStrLn "       1. Adicionar Saldo                           "
-    putStrLn "     ║ 2. Voltar                                    ║"
-    putStrLn "     ║                                              ║"
-    putStrLn "     ╚══════════════════════════════════════════════╝"
+    putStrLn "             ╔══════════════════════════════════════════════╗"
+    putStrLn "             ║                                              ║"
+    putStrLn $ "               Saldo Disponível: R$" ++ printf "%.2f" (fromJust saldo)
+    putStrLn "             ║                                              ║"
+    putStrLn "               1. Adicionar Saldo                           "
+    putStrLn "             ║ 2. Voltar                                    ║"
+    putStrLn "             ║                                              ║"
+    putStrLn "             ╚══════════════════════════════════════════════╝"
     putStrLn ""
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Selecione uma opção > "
 
     opcao <- getLine
@@ -348,7 +348,7 @@ carteiraCliente conn userID = do
 
 selecionarQntSaldo:: Connection -> Int64 -> IO()
 selecionarQntSaldo conn userID = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn " Quanto deseja adicionar?                                   "
     putStrLn ""
     putStrLn "1 - R$ 5,00"
@@ -358,7 +358,7 @@ selecionarQntSaldo conn userID = do
     putStrLn "5 - R$ 100,00"
     putStrLn "6 - Voltar"
     putStrLn ""
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Selecione uma opção > "
 
     opcao <- getLine
@@ -392,9 +392,9 @@ editarPerfil:: Connection -> Int64 -> IO ()
 editarPerfil conn userID = do
     (nome, nick, email, tipo, date) <- getInformacoesPerfil conn userID
 
-    putStrLn "============================================================"
-    putStrLn "               Informações do seu Perfil:                   "
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
+    putStrLn "                         Informações do seu Perfil:                   "
+    putStrLn "================================================================================"
     putStrLn ""
     putStrLn $ "Nome: " ++ nome
     putStrLn $ "Nickname: " ++ nick
@@ -403,14 +403,14 @@ editarPerfil conn userID = do
     putStrLn $ "Tipo de usuário: " ++ tipo ++ " \ESC[91m- Não alterável.\ESC[0m"
     putStrLn $ "Data de criação: " ++ date ++ " \ESC[91m- Não alterável.\ESC[0m"
     putStrLn ""
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "1. Alterar Nome"
     putStrLn "2. Alterar Nickname"
     putStrLn "3. Alterar Email"
     putStrLn "4. Alterar Senha"
     putStrLn "5. \ESC[91mExcluir conta\ESC[0m"
     putStrLn "6. Voltar"
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Selecione uma opção > "
 
     opcao <- getLine
@@ -439,9 +439,9 @@ editarPerfil conn userID = do
 
 excluirConta :: Connection -> Int64 -> IO ()
 excluirConta conn userID = do
-    putStrLn "============================================================"
-    putStrLn "\ESC[91m--------------------------Atenção---------------------------\ESC[0m"
-    putStrLn "\ESC[91mExcluir sua conta irá deletar todas suas mensagens, \njogos, e qualquer outra informação \nligada a sua conta. Esta ação não pode ser revertida!\ESC[0m"
+    putStrLn "================================================================================"
+    putStrLn "\ESC[91m-----------------------------------Atenção--------------------------------------\ESC[0m"
+    putStrLn "\ESC[91mExcluir sua conta irá deletar todas suas mensagens, jogos, e qualquer outra \ninformação ligada a sua conta. \nEsta ação NÃO PODE ser revertida!\ESC[0m"
     putStrLn ""
     putStrLn "Tem certeza que deseja continuar? (y/n) >"
 
@@ -465,9 +465,9 @@ excluirConta conn userID = do
 jogosCliente:: Connection -> Int64 -> IO()
 jogosCliente conn userID = do
     result <- getNomeAndIDJogos conn userID -- retorna uma lista com [(id, nomeJogo)] de todos os jogos do usuario
-    putStrLn "============================================================"
-    putStrLn "                       Meus Jogos                           "
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
+    putStrLn "                                Meus Jogos                                      "
+    putStrLn "================================================================================"
     exibirJogosCliente result
 
     putStrLn "Digite \ESC[91mSAIR\ESC[0m para voltar"
@@ -490,9 +490,9 @@ acessarJogo conn userID gameID = do
     nomeJogo <- getNomeJogoByID conn gameID
     let estrela = if estaFavoritado then "\x1b[33m*\x1b[0m" else ""
 
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn $ nomeJogo ++ " " ++ estrela
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn ""
     putStrLn "1. Avaliar jogo"
     putStrLn "2. Favoritar jogo"
@@ -500,7 +500,7 @@ acessarJogo conn userID gameID = do
     putStrLn "4. Denunciar jogo"
     putStrLn "5. Voltar"
     putStrLn ""
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Selecione uma opção > "
 
     opcao <- getLine
@@ -528,9 +528,9 @@ acessarJogo conn userID gameID = do
 
 denunciarJogo :: Connection -> Int64 -> Int64 -> IO ()
 denunciarJogo conn gameID userID = do
-    putStrLn "============================================================"
-    putStrLn "                     \ESC[91mDenúncia\ESC[0m              "
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
+    putStrLn "                                  \ESC[91mDenúncia\ESC[0m                       " 
+    putStrLn "================================================================================"
     putStrLn ""
     putStrLn "1. Não funciona/possui algum problema crítico"
     putStrLn "2. Contém vírus/malwares"
@@ -540,7 +540,7 @@ denunciarJogo conn gameID userID = do
     putStrLn "6. Outros"
     putStrLn "7. Voltar"
     putStrLn ""
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Selecione o motivo da denúncia > "
 
     opcao <- getLine
@@ -595,7 +595,7 @@ existeIDJogoCliente conn userID input = do
 avaliarJogo:: Connection -> Int64 -> Int64 -> IO()
 avaliarJogo conn gameID userID = do
 
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Insira uma nota de 0 a 10 > "
 
     nota <- getLine
@@ -615,7 +615,7 @@ favoritarJogo conn gameID userID = do
     estaFavoritado <- getFavoritarJogo conn gameID userID
 
     if estaFavoritado then do
-        putStrLn "============================================================"
+        putStrLn "================================================================================"
         putStrLn "\ESC[91mO jogo já está em seus favoritos\ESC[0m"
         putStrLn "Deseja removê-lo dos favoritos? (y/n) >"
 
@@ -626,9 +626,9 @@ favoritarJogo conn gameID userID = do
         case lowerInput of
             "y" -> do 
                 _ <- execute conn "UPDATE compra SET favoritar_jogo = false WHERE game_id = ? and user_id = ?" (gameID, userID)
-                putStrLn "============================================================"
-                putStrLn "                Jogo removido dos favoritos!                "
-                putStrLn "============================================================"
+                putStrLn "================================================================================"
+                putStrLn "                        Jogo removido dos favoritos!                            "
+                putStrLn "================================================================================"
             "n" -> do
                 return()
             _ -> do
@@ -636,14 +636,14 @@ favoritarJogo conn gameID userID = do
 
     else do
         _ <- execute conn "UPDATE compra SET favoritar_jogo = true WHERE game_id = ? and user_id = ?" (gameID, userID)
-        putStrLn "============================================================"
-        putStrLn "                Jogo favoritado com sucesso                 "
-        putStrLn "============================================================"
+        putStrLn "================================================================================"
+        putStrLn "                         Jogo favoritado com sucesso                            "
+        putStrLn "================================================================================"
 
 
 comentarJogo :: Connection -> Int64 -> Int64 -> IO()
 comentarJogo conn gameID userID = do
-    putStrLn "============================================================"
+    putStrLn "================================================================================"
     putStrLn "Insira seu comentário ou \ESC[91mSAIR\ESC[0m para voltar > "
 
     comentario <- getLine
