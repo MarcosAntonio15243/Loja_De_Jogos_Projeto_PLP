@@ -49,7 +49,7 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
       port: 5432
       ```
    - Caso não peça, clique com o botão direito no servidor onde está sua database, vá em connection e configure com as informações acima.
-4. Após as configurações, execute o projeto e em seguida copie o conteúdo do arquivo jogos.sql, cole na Query Tool do pgAdmin e execute para popular alguns jogos na sua base de dados.
+4. Após as configurações, execute o projeto e em seguida copie o conteúdo do arquivo dadosIniciais.sql, cole na Query Tool do pgAdmin e execute para popular uma conta administrador padrão e alguns jogos na sua base de dados.
        
 ___Observação: A configuração deve seguir a mesma que o tutorial acima. Caso contrário, a aplicação pode resultar em erros.___  
 
