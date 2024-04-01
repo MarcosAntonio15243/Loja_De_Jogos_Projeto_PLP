@@ -571,7 +571,7 @@ denunciarJogo conn gameID userID = do
             putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
             dJ
 
-        where dJ = denunciarJogo conn userID gameID
+        where dJ = acessarJogo conn userID gameID
 
 existeIDJogoCliente :: Connection -> Int64 -> String  -> IO ()
 existeIDJogoCliente conn userID input = do
