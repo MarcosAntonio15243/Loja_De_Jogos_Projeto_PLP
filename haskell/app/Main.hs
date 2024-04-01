@@ -16,6 +16,17 @@ main = do
     menuInicial conn
     limparTela
     
-    putStrLn "================================================================================"
-    putStrLn "                     OBRIGADO POR UTILIZAR O NOSSO SISTEMA!                     "
-    putStrLn "================================================================================"
+    putStrLn "╔══════════════════════════════════════════════════════════════════════════════╗"
+    putStrLn ""
+    putStrLn "║                    OBRIGADO POR UTILIZAR O NOSSO SISTEMA!                    ║"
+    putStrLn "║                                                                              ║"
+    putStrLn "║══════════════════════════════════════════════════════════════════════════════║"
+    putStrLn "║                                                                              ║"
+    putStrLn "║                                NOSSA EQUIPE:                                 ║"
+    putStrLn "║                                                                              ║"
+    putStrLn "║                                HILDON REGIS                                  ║"
+    putStrLn "║                                LEILA FARIAS                                  ║"
+    putStrLn "║                               MARCOS ANTONIO                                 ║"
+    putStrLn "║                               MARCOS VINÍCIUS                                ║"
+    putStrLn "║                                                                              ║"
+    putStrLn "╚══════════════════════════════════════════════════════════════════════════════╝"
