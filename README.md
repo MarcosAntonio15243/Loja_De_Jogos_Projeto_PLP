@@ -66,6 +66,5 @@ ___Observação 2: Em caso de erro na lib "base", você pode alterar a versão m
 - [Marcos Vinícius](https://github.com/marcosfragoso)
 - [Marcos Antônio](https://github.com/MarcosAntonio15243)
 - [Leila Farias](https://github.com/LeilaFarias)
-- [João Victor](https://github.com/VictorCosme)
 - [Hildon Regis](https://github.com/Hildon27)
 
