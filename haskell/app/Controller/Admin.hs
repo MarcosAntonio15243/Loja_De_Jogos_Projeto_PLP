@@ -24,7 +24,8 @@ menuInicialAdmin conn = do
     putStrLn "3 - Atualizar Jogo"
     putStrLn "4 - Remover Jogo"
     putStrLn "5 - Exibir denuncia"
-    putStrLn "6 - Sair"
+    putStrLn "6 - Dashboard"
+    putStrLn "7 - Sair"
     putStrLn ""
     putStrLn "================================================================================"
     putStrLn "Selecione uma opção:  "
@@ -50,6 +51,9 @@ menuInicialAdmin conn = do
             limparTela
             exibeDenuncia conn
         "6" -> do
+            limparTela
+            dashBoard conn
+        "7" -> do
             limparTela
             return()
         _ -> do
@@ -132,18 +136,21 @@ cadastraJogo conn nome descricao generos valor = do
 
 exibirJogo::Connection -> IO()
 exibirJogo conn = do
-    putStrLn "================================================================================"
-    putStrLn "Digite o nome do jogo para exibir as informações sobre ele:"
-    nomeJogo <- getLine
-
-    jogoExiste <- checarNomeDeJogoExistente conn nomeJogo
+    putStrLn "Jogos cadastrados no sistema: "
+    putStrLn ""
+    result <- getNomeAndIDTodosJogos conn
+    exibirJogosCliente result
+    putStrLn "Digite o id do jogo que deseja atualizar os dados: "
+    idGame <- getLine
+    let gameId = read idGame :: Int64
+    jogoExiste <- existeJogo conn gameId
     limparTela
-
     if jogoExiste then do
+        nomeJogo <- getNomeJogoByID conn gameId
         putStrLn ("Aqui estão as informações do jogo " ++ nomeJogo ++ ":")
         infoJogo <- obterInformacoesJogo conn nomeJogo
         mapM_ (mostraInformacoesJogo) infoJogo
-        putStrLn ""
+        putStrLn "================================================================================"
         putStrLn ("(Pressione qualquer tecla para voltar ao menu inicial)")
         opcao <- getLine
         limparTela
@@ -359,31 +366,31 @@ exibeDenuncia conn = do
          putStrLn "Não existem denuncias no momento!"
          menuInicialAdmin conn
     else do
-         putStrLn "Aqui estao as informações sobre a denuncia"
-         exibeInformacoesDenuncia conn (head infoDenuncia)
-    putStrLn "A denuncia é válida? S/N"
-    opcao <- getLine
-    let opcaoMaiuscula = map toUpper opcao
-    case opcaoMaiuscula of
-        "S" -> do
-            limparTela
-            nomeJogo <- getNomeJogoId conn (game_id (head infoDenuncia)) 
-            removeJogoDoSistema conn nomeJogo
-            apagaDenuncia conn (denuncia_id (head infoDenuncia))
-            putStrLn "================================================================================"
-            putStrLn "Como a denuncia é válida, o jogo foi removido!"
-            menuInicialAdmin conn
-        "N" -> do
-            limparTela
-            apagaDenuncia conn (denuncia_id (head infoDenuncia))
-            putStrLn "================================================================================"
-            putStrLn "Denuncia invalida!"
-            menuInicialAdmin conn
-        _ -> do
-            limparTela
-            putStrLn "================================================================================"
-            putStrLn "Opção inválida"
-            exibeDenuncia conn
+        putStrLn "Aqui estao as informações sobre a denuncia"
+        exibeInformacoesDenuncia conn (head infoDenuncia)
+        putStrLn "A denuncia é válida? S/N"
+        opcao <- getLine
+        let opcaoMaiuscula = map toUpper opcao
+        case opcaoMaiuscula of
+            "S" -> do
+                limparTela
+                nomeJogo <- getNomeJogoId conn (game_id (head infoDenuncia)) 
+                removeJogoDoSistema conn nomeJogo
+                apagaDenuncia conn (denuncia_id (head infoDenuncia))
+                putStrLn "================================================================================"
+                putStrLn "Como a denuncia é válida, o jogo foi removido!"
+                menuInicialAdmin conn
+            "N" -> do
+                limparTela
+                apagaDenuncia conn (denuncia_id (head infoDenuncia))
+                putStrLn "================================================================================"
+                putStrLn "Denuncia invalida!"
+                menuInicialAdmin conn
+            _ -> do
+                limparTela
+                putStrLn "================================================================================"
+                putStrLn "Opção inválida"
+                exibeDenuncia conn
 
 exibeInformacoesDenuncia :: Connection -> Denuncia -> IO()
 exibeInformacoesDenuncia conn denuncia = do
@@ -419,6 +426,82 @@ apagaDenuncia :: Connection -> Int64 -> IO()
 apagaDenuncia conn denunciaId = do
     execute conn "DELETE FROM denuncia WHERE denuncia_id = ?" (Only denunciaId)
     return()
+
+dashBoard :: Connection -> IO()
+dashBoard conn = do
+    putStrLn "================================================================================"
+    putStrLn "                             DASHBOARD - ADMINISTRADOR                               "
+    putStrLn "================================================================================"
+    putStrLn "MENU:"
+    putStrLn ""
+    putStrLn "1 - Jogos Mais Vendidos"
+    putStrLn "2 - Jogos Melhores Avaliados"
+    putStrLn "3 - Jogos Mais Caros"
+    putStrLn "4 - Jogos Mais Baratos"
+    putStrLn "5 - Jogos por data de lançamento"
+    putStrLn "6 - Sair"
+    putStrLn ""
+    putStrLn "================================================================================"
+    putStrLn "Selecione uma opção:  "
+
+    opcao <- getLine
+
+    putStrLn "================================================================================"
+
+    case opcao of
+        "1" -> do
+            limparTela
+            putStrLn "Aqui estão os jogos mais vendidos"
+            jogos <- getJogosMaisVendidos conn
+            printJogosAdm conn jogos
+            putStrLn ("(Pressione qualquer tecla para voltar para o dashboard)")
+            opcao <- getLine
+            limparTela
+            dashBoard conn
+        "2" -> do
+            limparTela
+            putStrLn "Aqui estão os jogos melhores avaliados"
+            jogos <- getJogosOrdenadosPorAvaliacao conn
+            printJogosAdm conn jogos
+            putStrLn ("(Pressione qualquer tecla para voltar para o dashboard)")
+            opcao <- getLine
+            limparTela
+            dashBoard conn
+        "3" -> do
+            limparTela
+            putStrLn "Aqui estão os jogos mais caros"
+            jogos <- getJogosOrdenadosPorMaiorPreco conn
+            printJogosAdm conn jogos
+            putStrLn ("(Pressione qualquer tecla para voltar para o dashboard)")
+            opcao <- getLine
+            limparTela
+            dashBoard conn
+        "4" -> do
+            limparTela
+            putStrLn "Aqui estão os jogos mais baratos"
+            jogos <- getJogosOrdenadosPorPreco conn
+            printJogosAdm conn jogos
+            putStrLn ("(Pressione qualquer tecla para voltar para o dashboard)")
+            opcao <- getLine
+            limparTela
+            dashBoard conn
+        "5" -> do
+            limparTela
+            putStrLn "Aqui estão os jogos mais baratos"
+            jogos <- getJogosOrdenadosPorDataLancamento conn
+            printJogosAdm conn jogos
+            putStrLn ("(Pressione qualquer tecla para voltar para o dashboard)")
+            opcao <- getLine
+            limparTela
+            dashBoard conn
+        "6" -> do
+            limparTela
+            return()
+        _ -> do
+            limparTela
+            putStrLn "\ESC[91mOpção inválida! Por favor, tente novamente.\ESC[0m"
+            dashBoard conn
+
 
 getGameId::Connection -> String -> IO Int64
 getGameId conn nomeJogo = do 

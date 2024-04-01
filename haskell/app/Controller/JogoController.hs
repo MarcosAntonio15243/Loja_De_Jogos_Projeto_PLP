@@ -35,6 +35,28 @@ printJogos jogos = do
       putStrLn $ "\ESC[1m\ESC[32mDigite o ID do jogo para ver detalhes\ESC[0m"
       putStrLn $ replicate 80 '-'
 
+printJogosAdm :: Connection -> [Jogo] -> IO ()
+printJogosAdm conn [] = putStrLn "Nenhum jogo encontrado."
+printJogosAdm conn jogos = do
+  putStrLn $ replicate 80 '='
+  let titulo = "LISTA DE JOGOS"
+      espacosAntes = (80 - length titulo) `div` 2
+      espacosDepois = 80 - length titulo - espacosAntes
+  putStrLn $ replicate espacosAntes ' ' ++ titulo ++ replicate espacosDepois ' '
+  putStrLn $ replicate 80 '='
+  mapM_ printJogo jogos
+  where
+    printJogo jogo = do
+      putStrLn $ "ID: " ++ show (game_id jogo)
+      putStrLn $ "Nome: " ++ game_nome jogo
+      putStrLn $ "Gênero: " ++ game_genero jogo
+      putStrLn $ "Preço: " ++ show (game_price jogo)
+      putStrLn $ "Avaliação: " ++ (printf "%.1f" (game_avaliacao jogo))
+      putStrLn $ "Data de lançamento: " ++ show (game_data_lancamento jogo)
+      numeroDeVendas <- getNumeroDeVendas conn (game_id jogo)
+      putStrLn $ "Quantidade de vendas: " ++ show numeroDeVendas
+      putStrLn $ "\ESC[1m\ESC[32mDigite o ID do jogo para ver detalhes\ESC[0m"
+      putStrLn $ replicate 80 '-'
 
 printJogoDetalhado :: [Jogo] -> IO ()
 printJogoDetalhado [] = putStrLn "Nenhum jogo encontrado."
@@ -63,17 +85,13 @@ getJogos:: Connection -> IO [Jogo]
 getJogos conn = do
     query_ conn "SELECT * FROM jogo" :: IO [Jogo]
 
-
 getJogoPorId:: Connection -> Int64 -> IO [Jogo]
 getJogoPorId conn id = do
     query conn "SELECT * FROM jogo WHERE game_id = ?" (Only id) :: IO [Jogo]
 
-
-
 getJogosPorNome :: Connection -> String -> IO [Jogo]
 getJogosPorNome conn nome = do
     query conn "SELECT * FROM jogo WHERE LOWER(game_nome) = LOWER(?)" (Only $ pack nome) :: IO [Jogo]
-
 
 getJogosAteDeterminadoPreco :: Connection -> Double -> IO [Jogo]
 getJogosAteDeterminadoPreco conn preco = do
@@ -126,6 +144,10 @@ getPrecoDoJogo conn gameId = do
     [Only preco] <- query conn "SELECT game_price FROM jogo WHERE game_id = ?" (Only gameId)
     return preco
 
+getNumeroDeVendas :: Connection -> Int -> IO Int
+getNumeroDeVendas conn gameId= do
+    [Only numeroVendas] <- query conn "SELECT COUNT(game_id) FROM compra WHERE game_id = ?" (Only gameId)
+    return numeroVendas
 
 existeJogo :: Connection -> Int64 -> IO Bool
 existeJogo conn gameId = do
