@@ -28,5 +28,6 @@ main = do
     putStrLn "║                                LEILA FARIAS                                  ║"
     putStrLn "║                               MARCOS ANTONIO                                 ║"
     putStrLn "║                               MARCOS VINÍCIUS                                ║"
+    putStrLn "║                                 JOÃO VICTOR                                  ║"
     putStrLn "║                                                                              ║"
     putStrLn "╚══════════════════════════════════════════════════════════════════════════════╝"
