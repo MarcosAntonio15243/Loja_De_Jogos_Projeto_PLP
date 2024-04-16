@@ -4,31 +4,12 @@
     iniciandoDatabase/1,
     encerrandoDatabase/1
 ]).
+:- use_module("Controller/User").
 
 main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
-    
     limparTela,
-    writeln('Aqui será chamado a função que abre o menu inicial'),
+    menuInicial,
     limparTela,
-
-    encerrandoDatabase(Connection),
-
-    writeln('╔══════════════════════════════════════════════════════════════════════════════╗'),
-    writeln('║                                                                              ║'),
-    writeln('║                    OBRIGADO POR UTILIZAR O NOSSO SISTEMA!                    ║'),
-    writeln('║                                                                              ║'),
-    writeln('║══════════════════════════════════════════════════════════════════════════════║'),
-    writeln('║                                                                              ║'),
-    writeln('║                                NOSSA EQUIPE:                                 ║'),
-    writeln('║                                                                              ║'),
-    writeln('║                                HILDON REGIS                                  ║'),
-    writeln('║                                LEILA FARIAS                                  ║'),
-    writeln('║                               MARCOS ANTONIO                                 ║'),
-    writeln('║                               MARCOS VINÍCIUS                                ║'),
-    writeln('║                                 JOÃO VICTOR                                  ║'),
-    writeln('║                                                                              ║'),
-    writeln('╚══════════════════════════════════════════════════════════════════════════════╝'),
-
-    halt.
+    encerrandoDatabase(Connection).

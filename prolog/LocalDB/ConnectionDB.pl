@@ -1,5 +1,6 @@
 :- module(connectiondb, [
     iniciandoDatabase/1,
+    connectionMyDB/1,
     encerrandoDatabase/1
 ]).
 
