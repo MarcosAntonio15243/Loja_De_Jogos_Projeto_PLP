@@ -1,17 +1,11 @@
 :- module(connectiondb, [
     iniciandoDatabase/1,
-    encerrandoDatabase/1,
-    createUsers/1,
-    createGames/1,
-    createCompras/1,
-    createMensagens/1,
-    createComentarios/1,
-    createDenuncias/1
+    encerrandoDatabase/1
 ]).
 
 :- use_module(library(odbc)).
 
-iniciandoDatabase(Connection) :-
+connectionMyDB(Connection) :-
     odbc_connect('SWI-Prolog', Connection, []).
 
 encerrandoDatabase(Connection) :-
@@ -92,5 +86,14 @@ createDenuncias(Connection) :-
             FOREIGN KEY (id_usuario) REFERENCES usuario(user_id) ON DELETE CASCADE,
             FOREIGN KEY (id_jogo) REFERENCES jogo(game_id) ON DELETE CASCADE
         );", _).
+
+iniciandoDatabase(Connection):-
+    connectionMyDB(Connection),
+    createUsers(Connection),
+    createGames(Connection),
+    createCompras(Connection),
+    createMensagens(Connection),
+    createComentarios(Connection),
+    createDenuncias(Connection).
 
 teste(X):- write(X).
