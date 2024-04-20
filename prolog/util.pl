@@ -21,6 +21,6 @@ verificaCamposTamMaxStr50([]) :- !.
 verificaCamposTamMaxStr50([H|T]) :- string_length(H, L), L =< 50, verificaCamposTamMaxStr50(T).
 
 printColorido(Text, green) :- ansi_format([fg(green)], '~w', [Text]), writeln(""), !.
-printColorido(Text, red) :- ansi_format([bold, fg(red)], '~w', [Text]), writeln(""), !.
+printColorido(Text, red) :- ansi_format([fg(235, 0, 0)], '~w', [Text]), writeln(""), !.
 printColorido(Text, yellow) :- ansi_format([fg(yellow)], '~w', [Text]), writeln(""), !.
 printColorido(Text, cyan) :- ansi_format([fg(cyan)], '~w', [Text]), writeln(""), !.
