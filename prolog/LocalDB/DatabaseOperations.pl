@@ -11,7 +11,8 @@
     getUserNomeById/3,
     getUserIdByNickname/3,
     getMensagensByUserIDFriendID/4,
-    enviarMensagem/4
+    enviarMensagem/4,
+    gameAlreadyExistByName/2
 ]).
 :- use_module(library(odbc)).
 
@@ -43,6 +44,11 @@ db_parameterized_query_no_return(Connection, Query, Parameters):-
 userAlreadyExistsById(Connection, Id) :-
     Q = "SELECT COUNT(*) FROM usuario WHERE user_id = '%w'",
     db_parameterized_query(Connection, Q, [Id], [row(CountRow)]),
+    (CountRow > 0).
+
+gameAlreadyExistByName(Connection, GameName) :-
+    Q = "SELECT COUNT(*) FROM jogo WHERE game_nome = '%w'",
+    db_parameterized_query(Connection, Q, [GameName], [row(CountRow)]),
     (CountRow > 0).
 
 userAlreadyExistsByNickname(Connection, Nickname) :-

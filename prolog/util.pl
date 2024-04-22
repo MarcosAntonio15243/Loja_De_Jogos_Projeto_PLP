@@ -6,11 +6,7 @@
 ]).
 
 limparTela :-
-    current_prolog_flag(windows, true), !,
-    win_exec('cls').
-limparTela :-
-    current_prolog_flag(unix, true), !,
-    shell('clear').
+    writeln('\e[H\e[2J').
 
 /* Recebe uma lista de parâmetros String e verifica se algum deles é vazio */
 verificaCamposNaoVazios([]) :- !.
