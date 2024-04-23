@@ -10,8 +10,8 @@
 main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
-    getJogosById(Connection, 7, Jogo),
-    print_jogo_detalhado(Jogo),
+    Teste = jogoExiste(Connection, 3),
+    writeln(Teste),
     writeln('Aqui será chamado a função que abre o menu inicial'),
     
 

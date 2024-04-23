@@ -12,7 +12,9 @@
     getJogosOrderByRating/2,
     print_jogos/1,
     print_jogo/1,
-    print_jogo_detalhado/1]).
+    print_jogo_detalhado/1,
+    getPriceJogo/3,
+    jogoExiste/2]).
 :- use_module("./LocalDB/ConnectionDB").
 :- use_module("./LocalDB/DatabaseOperations").
 
@@ -60,6 +62,20 @@ getJogosOrderByBiggestPrice(Connection, Jogos):-
 getJogosOrderByRating(Connection, Jogos):-
     Q = "SELECT * FROM jogo ORDER BY game_avaliacao DESC",
     db_query(Connection, Q, Jogos).
+
+
+getPriceJogo(Connection, JogoId, Preco):-
+    Q = "SELECT game_price FROM jogo WHERE game_id = %w",
+    db_parameterized_query(Connection, Q, [JogoId], PrecoRow),
+    getUniqueDataRow(PrecoRow, Preco).
+
+
+jogoExiste(Connection, JogoId):-
+    Q = "SELECT COUNT(*) FROM jogo WHERE game_id = %w",
+    db_parameterized_query(Connection, Q, [JogoId], [row(CountRow)]),
+    (CountRow > 0).
+
+
 
 print_jogos([]) :-
     writeln('Nenhum jogo encontrado.').

@@ -12,7 +12,8 @@
     getUserIdByNickname/3,
     getMensagensByUserIDFriendID/4,
     enviarMensagem/4,
-    db_query/3
+    db_query/3,
+    getUniqueDataRow/2
 ]).
 :- use_module(library(odbc)).
 
