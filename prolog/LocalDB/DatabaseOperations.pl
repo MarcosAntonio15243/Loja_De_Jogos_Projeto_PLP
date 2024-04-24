@@ -12,7 +12,8 @@
     getUserIdByNickname/3,
     getMensagensByUserIDFriendID/4,
     enviarMensagem/4,
-    gameAlreadyExistByName/2
+    gameAlreadyExistByName/2,
+    db_query/3
 ]).
 :- use_module(library(odbc)).
 

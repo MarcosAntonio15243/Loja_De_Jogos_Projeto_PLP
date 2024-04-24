@@ -6,7 +6,7 @@
 ]).
 
 limparTela :-
-    writeln('\e[H\e[2J').
+    write('\33[2J').
 
 /* Recebe uma lista de parâmetros String e verifica se algum deles é vazio */
 verificaCamposNaoVazios([]) :- !.

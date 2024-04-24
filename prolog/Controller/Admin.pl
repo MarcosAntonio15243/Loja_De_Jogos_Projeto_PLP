@@ -3,6 +3,7 @@
 :- use_module("../LocalDB/DatabaseOperations").
 :- use_module(library(date)).
 :- use_module("../util").
+:- use_module("../Controller/Jogo").
 
 menuAdmin :-
     writeln(''),
@@ -21,6 +22,8 @@ menuAdmin :-
     read_line_to_string(user_input, Opcao),
     writeln(''),
     (Opcao == "1" -> cadastraJogo;
+     Opcao == "2" -> exibirJogo;
+     Opcao == "4" -> apagarJogo;
      Opcao == "0" -> writeln('Saindo...'), writeln(''), halt).
 
 cadastraJogo :-
@@ -70,3 +73,47 @@ converteGenero("3", "Terror") :- !.
 converteGenero("4", "Estratégia") :-!.
 converteGenero("5", "FPS") :-!.
 converteGenero(_, _) :- writeln("Opção inválida, tente novamente."), cadastraJogo, !.
+
+exibirJogo :-
+    get_connection(Connection),
+    getJogos(Connection, Jogos),
+    exibir_jogos(Jogos),
+    writeln("Digite o id do jogo que deseja exibir as informacoes: "),
+    read_line_to_string(user_input, IdJogo),
+    (
+        jogoExiste(Connection, IdJogo) ->
+        getJogosById(Connection, IdJogo, [Jogo|_]),
+        print_jogo_detalhado_individual(Jogo),
+        menuAdmin;
+        writeln("Nao existe nenhum jogo com esse ID, por favor, tente novamente."),
+        exibirJogo
+    ).
+
+apagarJogo:-
+    get_connection(Connection),
+    getJogos(Connection, Jogos),
+    exibir_jogos(Jogos),
+    writeln("Digite o id do jogo que deseja apagar: "),
+    read_line_to_string(user_input, IdJogo),
+    (
+        jogoExiste(Connection, IdJogo) ->
+        format(atom(StringFormatada), "Tem certeza que deseja apagar o jogo com o id ~w? [S/N]: ", [IdJogo]),
+        writeln(StringFormatada),
+        read_line_to_string(user_input, Option),
+        string_lower(Option, LowerOption),
+        (
+            atom_string(LowerOption, 's') -> apagarJogoBD(Connection, IdJogo),
+            writeln("Jogo apagado com sucesso."),
+            menuAdmin;
+            atom_string(LowerOption, 'n')-> writeln("Operacao de remoçao abortada."),
+            menuAdmin;
+            writeln("Opcao invalida, por favor, tente novamente.")
+        ),
+        menuAdmin;
+        writeln("Nao existe nenhum jogo com esse ID, por favor, tente novamente."),
+        apagarJogo
+    ).     
+
+apagarJogoBD(Connection, IdJogo):-
+    Q = 'DELETE FROM jogo WHERE game_id = %w',
+    db_parameterized_query_no_return(Connection, Q, [IdJogo]).
