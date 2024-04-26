@@ -6,11 +6,14 @@
 ]).
 :- use_module("Controller/User").
 
+:- initialization(main).
+
+/* Inicialização do programa */
 main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
     limparTela,
     menuInicial,
-    %limparTela,
+    limparTela,
     writeln("SAIU"),
     encerrandoDatabase(Connection).

@@ -5,15 +5,20 @@
 :- dynamic(current_user_id/1).
 current_user_id(0).
 
+/*
+    Seta o id do usuário como dinamico neste arquivo e chama a função princial do menu
+    do Usuário Padrão (Cliente)
+*/
 menuCliente(UserID) :-
     asserta(current_user_id(UserID)), % Guarda o ID do usuario atual
     exibeMenuCliente.
 
+/* Exibe o Menu principal do Usuário Padrão */
 exibeMenuCliente :-
     get_connection(Connection),
     current_user_id(UserID),
     getUserNomeById(Connection, UserID, Nome),
-    encerrandoDatabase(Connection),
+    close_connection(Connection),
     writeln("================================================================================"),
     writeln("                                      HOME                                      "),
     writeln("================================================================================"),
@@ -29,19 +34,20 @@ exibeMenuCliente :-
     writeln("Selecione uma opção: "),
     read_line_to_string(user_input, Opcao),
     escolherOpcao(Opcao).
-
+/* Caso a opção do menu do cliente seja '2', limpa a tela e vai para a tela de mensagens */
 escolherOpcao("2") :-
     limparTela,
     mensagens.
-
+/* Caso a opção do menu do cliente seja '4', limpa a tela e e volta ao menu principal do sistema */
 escolherOpcao("4") :-
     limparTela.
-
+/* Caso a opção do menu inicial seja inválida exibe uma mensagem de erro e retorna ao menu do cliente */
 escolherOpcao(_) :-
     limparTela,
     printColorido("Opção inválida! Por favor, tente novamente.", red),
     exibeMenuCliente.
 
+/* Receber um nickname de usuário para exibir as mensagens */
 mensagens :-
     writeln("================================================================================"),
     writeln("Digite o nickname do usuário para quem deseja enviar a mensagem:"),
@@ -61,7 +67,11 @@ mensagens :-
                     mensagens
             )
     ).
-    
+
+/* 
+    Checa se o nickname de um usuário que se deseja ver/enviar mensagens é válido (Result = 1) ou
+    não (Result = 0).
+*/
 validaNicknameFriendMensagem(UserID, FriendNicknameString, Result) :-
     get_connection(Connection),
     getUserNicknameById(Connection, UserID, UserNicknameString),
@@ -80,8 +90,9 @@ validaNicknameFriendMensagem(UserID, FriendNicknameString, Result) :-
         ;
             Result = 1
     ),
-    encerrandoDatabase(Connection).
+    close_connection(Connection).
 
+/* Abre o chat de conversas entre usuários */
 abrirChat(FriendNickname) :-
     %limparTela,
     writeln("================================================================================"),
@@ -112,6 +123,7 @@ abrirChat(FriendNickname) :-
             abrirChat(FriendNickname)
     ).
 
+/* Exibe as mensagens com o usuário de acordo com o nickname amigo */
 exibeMensagens(_, _, []).
 exibeMensagens(UserID, FriendNickname, [row(IdRemetente, MensagemTexto) | Outras]) :-
     (

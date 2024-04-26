@@ -8,6 +8,7 @@
 
 :- use_module("./Cliente", [menuCliente/1]).
 
+/* Menu inicial do sistema */
 menuInicial :-
     writeln("================================================================================"),
     writeln("                          BEM VINDO(A) À LOJA DE JOGOS                          "),
@@ -23,15 +24,15 @@ menuInicial :-
     read_line_to_string(user_input, Opcao),
     escolherOpcao(Opcao).
 
-
+/* Caso a opção do menu inicial for '1', limpa a tela e vai para a tela de login */
 escolherOpcao("1") :-
     limparTela,
     login.
-
+/* Caso a opção do menu inicial for '2', limpa a tela e vai para a tela de criar uma nova conta */
 escolherOpcao("2") :-
     limparTela,
     criarConta.
-
+/* Caso a opção do menu inicial for '3', limpa a tela e exibe os créditos finalizando o programa */
 escolherOpcao("3") :-
     limparTela,
     writeln("╔══════════════════════════════════════════════════════════════════════════════╗"),
@@ -50,13 +51,13 @@ escolherOpcao("3") :-
     writeln("║                                                                              ║"),
     writeln("╚══════════════════════════════════════════════════════════════════════════════╝"),
     halt.
-
+/* Caso a opção do menu inicial seja inválida exibe uma mensagem de erro e retorna ao menu inicial */
 escolherOpcao(_) :-
     limparTela,
     printColorido("Opção inválida! Por favor, tente novamente.", red),
     menuInicial.
 
-
+/* Tela para realização de login do usuário */
 login :- 
     writeln("================================================================================"),
     writeln("                                      LOGIN                                     "),
@@ -89,6 +90,10 @@ login :-
         )
     ).
 
+/*
+    Verifica se os dados passados pelo usuário são válidos e se o usuário existe (Autenticado = 1)
+    ou não existe (Autenticado = 0).
+*/
 autenticaUser(Email, Senha, UserID, UserTipo, Autenticado) :-
     get_connection(Connection),
     getUser(Connection, Email, Senha, User),
@@ -98,9 +103,9 @@ autenticaUser(Email, Senha, UserID, UserTipo, Autenticado) :-
     ;
         Autenticado = 0
     ),
-    encerrandoDatabase(Connection).
+    close_connection(Connection).
 
-
+/* Verifica se o usuário deseja continuar a operação de login */
 desejaContinuarLogin :-
     writeln("Deseja continuar? (s/n)"),
     read_line_to_string(user_input, Opcao),
@@ -113,6 +118,7 @@ desejaContinuarLoginOpcao(_) :-
     printColorido("Opção inválida!", red),
     desejaContinuarLogin.
 
+/* Tela para a criação de uma nova conta de usuário */
 criarConta :-
     writeln("================================================================================"),
     writeln("                                 CRIAR CONTA                                    "),
@@ -153,7 +159,8 @@ criarConta :-
             ;
                 desejaContinuarCriarConta
     ).
-    
+
+/* Verifica se o usuário deseja continuar a operação de criar uma nova conta */
 desejaContinuarCriarConta :-
     writeln("Deseja continuar? (s/n)"),
     read_line_to_string(user_input, Opcao),
@@ -166,7 +173,10 @@ desejaContinuarCriarContaOpcao(_) :-
     printColorido("Opção inválida!", red),
     desejaContinuarCriarConta.
 
-
+/*
+    Cadastra uma nova conta no banco de dados. Caso o cadastrado seja efetuado com sucesso
+    Result será igual a 1, caso contrário, Result será igual a 0
+*/
 cadastrarConta(Nickname, Nome, Email, Senha, Result) :-
     get_connection(Connection),
     (
@@ -188,4 +198,4 @@ cadastrarConta(Nickname, Nome, Email, Senha, Result) :-
         db_parameterized_query_no_return(Connection, Q, [Nickname, Nome, Email, Senha, "Padrão", DataFormatada, 0]),
         Result is 1
     ),
-    encerrandoDatabase(Connection).
+    close_connection(Connection).

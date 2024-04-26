@@ -3,15 +3,17 @@
     connectionMyDB/1,
     encerrandoDatabase/1
 ]).
-
 :- use_module(library(odbc)).
 
+/* Inicia a conexão com o banco de dados */
 connectionMyDB(Connection) :-
     odbc_connect('SWI-Prolog', Connection, []).
 
+/* Encerra a conexão com o banco de dados */
 encerrandoDatabase(Connection) :-
     odbc_disconnect(Connection).
 
+/* Cria a tabela de Usuários */
 createUsers(Connection) :-
     odbc_query(Connection,
         "CREATE TABLE IF NOT EXISTS usuario (
@@ -25,6 +27,7 @@ createUsers(Connection) :-
             user_saldo FLOAT NOT NULL
         );", _).
 
+/* Cria a tabela de Jogos */
 createGames(Connection) :-
     odbc_query(Connection, "
         CREATE TABLE IF NOT EXISTS jogo (
@@ -37,6 +40,7 @@ createGames(Connection) :-
             game_price FLOAT NOT NULL
         );", _).
 
+/* Cria a tabela de Compras */
 createCompras(Connection) :-
     odbc_query(Connection, "
         CREATE TABLE IF NOT EXISTS compra (
@@ -51,6 +55,7 @@ createCompras(Connection) :-
             FOREIGN KEY (game_id) REFERENCES jogo(game_id) ON DELETE CASCADE
         );", _).
 
+/* Cria a tabela de Mensagens */
 createMensagens(Connection) :-
     odbc_query(Connection, "
         CREATE TABLE IF NOT EXISTS mensagem (
@@ -63,6 +68,7 @@ createMensagens(Connection) :-
             FOREIGN KEY (id_destinatario) REFERENCES usuario(user_id) ON DELETE CASCADE
         );", _).
 
+/* Cria a tabela de Comentários */
 createComentarios(Connection) :-
     odbc_query(Connection, "
         CREATE TABLE IF NOT EXISTS comentario (
@@ -75,6 +81,7 @@ createComentarios(Connection) :-
             FOREIGN KEY (id_jogo) REFERENCES jogo(game_id) ON DELETE CASCADE
         );", _).
 
+/* Cria a tabela de Denúncias */
 createDenuncias(Connection) :-
     odbc_query(Connection, "
         CREATE TABLE IF NOT EXISTS denuncia (
@@ -88,6 +95,7 @@ createDenuncias(Connection) :-
             FOREIGN KEY (id_jogo) REFERENCES jogo(game_id) ON DELETE CASCADE
         );", _).
 
+/* Inicia a conexão com o banco de dados e chama as funções que criam todas as tabelas necessárias */
 iniciandoDatabase(Connection):-
     connectionMyDB(Connection),
     createUsers(Connection),
@@ -96,5 +104,3 @@ iniciandoDatabase(Connection):-
     createMensagens(Connection),
     createComentarios(Connection),
     createDenuncias(Connection).
-
-teste(X):- write(X).
