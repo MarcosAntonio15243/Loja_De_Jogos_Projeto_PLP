@@ -13,6 +13,7 @@
     print_jogos/1,
     print_jogo/1,
     print_jogo_detalhado/1,
+    print_jogo_detalhado_individual/1,
     getPriceJogo/3,
     jogoExiste/2]).
 :- use_module("./LocalDB/ConnectionDB").
@@ -92,6 +93,7 @@ print_jogos_rest([]).
 
 print_jogos_rest([Jogo|OutrosJogos]) :-
     print_jogo(Jogo),
+    writeln('Digite o ID do jogo para ver detalhes'),
     writeln('--------------------------------------------------------------------------------'),
     print_jogos_rest(OutrosJogos).
 
@@ -101,10 +103,10 @@ print_jogo(row(ID, Nome, Genero, _, _, _, Preco)) :-
 print_jogo_detalhado([]) :-
     writeln('Nenhum jogo encontrado.').
 
-print_jogo_detalhado([Jogo|OutrosJogos]) :-
+print_jogo_detalhado([Jogo|_]) :-
     print_jogo_detalhado_individual(Jogo),
-    writeln('--------------------------------------------------------------------------------'),
-    print_jogo_detalhado(OutrosJogos).
+    writeln('Comprar jogo? [s/n]'),
+    writeln('--------------------------------------------------------------------------------').
 
 print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, Dia), Avaliacao, Preco)) :-
     writeln('================================================================================'),

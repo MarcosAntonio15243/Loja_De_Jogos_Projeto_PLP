@@ -6,12 +6,14 @@
     encerrandoDatabase/1
 ]).
 :- use_module("./Controller/Jogo").
+:- use_module("./Controller/Usuario").
+:- use_module("./Controller/Compra").
 
 main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
-    Teste = jogoExiste(Connection, 3),
-    writeln(Teste),
+    getJogosById(Connection, 1, Jogos),
+    print_jogo_detalhado(Jogos),
     writeln('Aqui será chamado a função que abre o menu inicial'),
     
 
