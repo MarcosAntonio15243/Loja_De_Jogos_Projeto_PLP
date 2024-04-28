@@ -13,6 +13,8 @@ main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
     realizaCompra(Connection, 80, 2),
+    read_line_to_string(user_input, Opcao),
+    limparTela,
     writeln('Aqui será chamado a função que abre o menu inicial'),
     
 
