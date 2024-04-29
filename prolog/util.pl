@@ -5,8 +5,12 @@
     verificaCamposTamMaxStr50/1
 ]).
 
+:- use_module(library(process)).
+
 limparTela :-
-    write('\33[2J').
+    current_prolog_flag(windows, true),
+    process_create(path(cmd), ['/C', 'cls'], [process(PID)]),
+    process_wait(PID, _), !.
 
 /* Recebe uma lista de parâmetros String e verifica se algum deles é vazio */
 verificaCamposNaoVazios([]) :- !.
