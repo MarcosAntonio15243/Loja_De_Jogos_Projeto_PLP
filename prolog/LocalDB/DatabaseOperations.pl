@@ -1,6 +1,9 @@
 :- module(databaseOperations, [
+    getSaldoUsuario/3,
+    setSaldoUsuario/3,
     get_connection/1,
     close_connection/1,
+    db_query/3,
     db_parameterized_query/4,
     db_parameterized_query_no_return/3,
     userAlreadyExistsById/2,
@@ -12,7 +15,8 @@
     getUserNomeById/3,
     getUserIdByNickname/3,
     getMensagensByUserIDFriendID/4,
-    enviarMensagem/4
+    enviarMensagem/4,
+    getUniqueDataRow/2
 ]).
 :- use_module(library(odbc)).
 
@@ -114,3 +118,15 @@ getMensagensByUserIDFriendID(Connection, UserID, FriendID, Mensagens) :-
 enviarMensagem(Connection, UserID, FriendID, TextoNovaMensagem) :-
     Q = "INSERT INTO mensagem (id_remetente, id_destinatario, message_texto) values (%w, %w, '%w')",
     db_parameterized_query_no_return(Connection, Q, [UserID, FriendID, TextoNovaMensagem]).
+
+
+/* Busca o saldo de um usuário pelo seu ID */
+getSaldoUsuario(Connection, UserId, Saldo):-
+    Q = "SELECT user_saldo FROM usuario WHERE user_id = %w",
+    db_parameterized_query(Connection, Q, [UserId], SaldoRow),
+    getUniqueDataRow(SaldoRow, Saldo).
+
+/* Define o saldo de um usuário pelo seu ID */
+setSaldoUsuario(Connection, UserId, NovoValor):-
+    Q = "UPDATE usuario SET user_saldo = %w WHERE user_id = %w",
+    db_parameterized_query_no_return(Connection, Q, [NovoValor, UserId]).

@@ -1,4 +1,5 @@
 :- set_prolog_flag(encoding, utf8).
+:- encoding(utf8).
 :- use_module(util).
 :- use_module("./LocalDB/ConnectionDB", [
     iniciandoDatabase/1,
@@ -12,8 +13,7 @@
 main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
-    limparTela,
+    %limparTela,
     menuInicial,
-    limparTela,
-    writeln("SAIU"),
-    encerrandoDatabase(Connection).
+    encerrandoDatabase(Connection),
+    halt.
