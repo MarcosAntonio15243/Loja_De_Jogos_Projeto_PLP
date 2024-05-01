@@ -76,7 +76,7 @@ ___Observação: A configuração deve seguir a mesma que o tutorial acima. Caso
 ___Observação 1: Caso esteja usando Visual Studio Code, baixe as extensões necessárias.___  
 ___Observação 2: Em caso de erro na lib "base", você pode alterar a versão manualmente no arquivo "haskell.cabal" com a versão da sua máquina.___
 
-## Instalação Prolog
+## Instalação do Prolog
 1. Faça a instalação do [SWI-Prolog](https://www.swi-prolog.org/download/stable) ([Tutorial de instalação para Windows](https://www.youtube.com/watch?v=YzDpQOk2qvQ&t=11s))
 2. Depois de configurar seu PostgreSQL, abra o terminal no diretório "prolog" e rode os comandos `swipl main.pl` e em seguida chame a função `main.`
    
