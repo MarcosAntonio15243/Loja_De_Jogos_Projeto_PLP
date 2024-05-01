@@ -38,7 +38,7 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
    - [Tutorial para Linux Ubuntu](https://www.youtube.com/watch?v=1jSb4LJH1dw)
    - [Tutorial para Linux Mint (Em caso de problemas no vídeo acima)](https://www.youtube.com/watch?v=rDh3iq8nmDg)
   
-2. Se for executar o projeto em Prolog, precisará baixar o driver do PostgreSQL OBDC para Windwos ([Link](https://www.postgresql.org/ftp/odbc/versions/msi/))
+2. Se for executar o projeto em Prolog, precisará baixar o driver do PostgreSQL OBDC para Windows ([Link](https://www.postgresql.org/ftp/odbc/versions/msi/))
      - Após isso, você cria a database "lojajogos" no pgAdmin
      - Pesquise no menu iniciar por ODBC e clique na primeira opção. A tela “Administrador de Fonte de Dados ODBC” deve abrir. Na aba “DNS de Usuário” clique em Adicionar, e crie uma fonte de dados com o driver “PostgreSQL Unicode” que você baixou anteriormente. Os dados a serem inseridos são dessa forma (semelhante à anterior):
        
