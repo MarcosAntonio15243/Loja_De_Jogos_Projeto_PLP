@@ -14,7 +14,17 @@
     getMensagensByUserIDFriendID/4,
     enviarMensagem/4,
     getUserSaldoById/3,
-    getUserSenhaById/3
+    getUserSenhaById/3,
+    getInformacoesPerfil/3,
+    getUserNomeById/3,
+    getUserEmailById/3,
+    getUserTipoById/3,
+    getUserDataById/3,
+    atualizaUserNome/3,
+    atualizaUserNick/3,
+    atualizaUserEmail/3,
+    atualizaUserSenha/3,
+    deletaUserConta/2
 ]).
 :- use_module(library(odbc)).
 
@@ -111,11 +121,54 @@ getUserNomeById(Connection, UserID, Nome) :-
     db_parameterized_query(Connection, Q, [UserID], NomeRow),
     getUniqueDataRow(NomeRow, Nome).
 
+/* Busca o email do usuario de acordo com o seu Id */
+getUserEmailById(Connection, UserID, Email) :-
+    Q = "SELECT user_email FROM usuario WHERE user_id = '%w'",
+    db_parameterized_query(Connection, Q, [UserID], EmailRow),
+    getUniqueDataRow(EmailRow, Email).
+
+/* Busca o tipo do usuario de acordo com o seu Id */
+getUserTipoById(Connection, UserID, Tipo) :-
+    Q = "SELECT user_tipo FROM usuario WHERE user_id = '%w'",
+    db_parameterized_query(Connection, Q, [UserID], TipoRow),
+    getUniqueDataRow(TipoRow, Tipo).
+
+/* Busca a data de criação do usuario de acordo com o seu Id */
+getUserDataById(Connection, UserID, Data) :-
+    Q = "SELECT user_date FROM usuario WHERE user_id = '%w'",
+    db_parameterized_query(Connection, Q, [UserID], DateRow),
+    getUniqueDataRow(DateRow, Data).
+
 /* Busca o Id de um usuáiro de acordo com o seu Nickname */
 getUserIdByNickname(Connection, UserNickname, UserID) :-
     Q = "SELECT user_id FROM usuario WHERE user_nickname = '%w'",
     db_parameterized_query(Connection, Q, [UserNickname], UserIDRow),
     getUniqueDataRow(UserIDRow, UserID).
+
+atualizaUserNome(Connection, UserID, NomeDesejado) :-
+    Q = "UPDATE usuario SET user_nome = '%w' WHERE user_id = '%w'",
+    db_parameterized_query_no_return(Connection, Q, [NomeDesejado, UserID]).
+
+atualizaUserNick(Connection, UserID, NickDesejado) :-
+    Q = "UPDATE usuario SET user_nickname = '%w' WHERE user_id = '%w'",
+    db_parameterized_query_no_return(Connection, Q, [NickDesejado, UserID]).
+
+atualizaUserEmail(Connection, UserID, EmailDesejado) :-
+    Q = "UPDATE usuario SET user_email = '%w' WHERE user_id = '%w'",
+    db_parameterized_query_no_return(Connection, Q, [EmailDesejado, UserID]).
+
+atualizaUserSenha(Connection, UserID, SenhaDesejada) :-
+    Q = "UPDATE usuario SET user_senha = '%w' WHERE user_id = '%w'",
+    db_parameterized_query_no_return(Connection, Q, [SenhaDesejada, UserID]).
+
+deletaUserConta(Connection, UserID) :-
+    Q1 = "DELETE FROM compra WHERE user_id = '%w';",
+    Q2 = "DELETE FROM comentario WHERE id_usuario = '%w';",
+    Q3 = "DELETE FROM denuncia WHERE id_usuario = '%w';",
+    Q4 = "DELETE FROM mensagem WHERE id_remetente = '%w';",
+    Q5 = "DELETE FROM usuario WHERE user_id = '%w';",
+    format(atom(Query), '~w~w~w~w~w', [Q1, Q2, Q3, Q4, Q5]),
+    db_parameterized_query_no_return(Connection, Query, [UserID, UserID, UserID, UserID, UserID]).
 
 /* Busca todas as mensagens entre dois usuários de acordo com os seus IDs */
 getMensagensByUserIDFriendID(Connection, UserID, FriendID, Mensagens) :-
