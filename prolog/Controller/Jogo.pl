@@ -97,7 +97,7 @@ print_jogos_rest([Jogo|OutrosJogos]) :-
     writeln('--------------------------------------------------------------------------------'),
     print_jogos_rest(OutrosJogos).
 
-print_jogo(row(ID, Nome, Genero, _, _, _, Preco)) :-
+print_jogo(row(ID, Nome, Genero, _, _, _, Preco, _)) :-
     format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~n', [ID, Nome, Genero, Preco]).
 
 print_jogo_detalhado([]) :-
@@ -108,7 +108,7 @@ print_jogo_detalhado([Jogo|_]) :-
     writeln('Comprar jogo? [s/n]'),
     writeln('--------------------------------------------------------------------------------').
 
-print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, Dia), Avaliacao, Preco)) :-
+print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, Dia), Avaliacao, Preco, _)) :-
     writeln('================================================================================'),
     format('           DETALHES DO JOGO [~d]           ~n', [ID]),
     writeln('================================================================================'),
