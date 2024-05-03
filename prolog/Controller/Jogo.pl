@@ -21,58 +21,58 @@
 
 
 getJogos(Connection, Jogos):-
-    Q = "SELECT * FROM jogo",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false",
     db_query(Connection, Q, Jogos).
 
 getJogosById(Connection, JogoId, Jogo):-
-    Q = "SELECT * FROM jogo WHERE game_id = %w",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false and game_id = %w",
     db_parameterized_query(Connection, Q, [JogoId], Jogo).
 
 getJogosByNome(Connection, Nome, Jogo):-
-    Q = "SELECT * FROM jogo WHERE LOWER(game_nome) = LOWER('%w')",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false and LOWER(game_nome) = LOWER('%w')",
     db_parameterized_query(Connection, Q, [Nome], Jogo).
 
 getJogosUntilOnePrice(Connection, Preco, Jogos):-
-    Q = "SELECT * FROM jogo WHERE game_price <= %w",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false and game_price <= %w",
     db_parameterized_query(Connection, Q, [Preco], Jogos).
 
 getJogosMinimumPrice(Connection, Preco, Jogos):-
-    Q = "SELECT * FROM jogo WHERE game_price >= %w",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false and game_price >= %w",
     db_parameterized_query(Connection, Q, [Preco], Jogos).
 
 getJogosByGender(Connection, Gender, Jogos):-
-    Q = "SELECT * FROM jogo WHERE LOWER(game_genero) = LOWER('%w')",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false and LOWER(game_genero) = LOWER('%w')",
     db_parameterized_query(Connection, Q, [Gender], Jogos).
 
 getJogosOrderByDate(Connection, Jogos):-
-    Q = "SELECT * FROM jogo ORDER BY game_data_lancamento DESC",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false ORDER BY game_data_lancamento DESC",
     db_query(Connection, Q, Jogos).
 
 getJogosOrderByName(Connection, Jogos):-
-    Q = "SELECT * FROM jogo ORDER BY game_nome",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false ORDER BY game_nome",
     db_query(Connection, Q, Jogos).
 
 getJogosOrderByPrice(Connection, Jogos):-
-    Q = "SELECT * FROM jogo ORDER BY game_price",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false ORDER BY game_price",
     db_query(Connection, Q, Jogos).
 
 getJogosOrderByBiggestPrice(Connection, Jogos):-
-    Q = "SELECT * FROM jogo ORDER BY game_price DESC",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false ORDER BY game_price DESC",
     db_query(Connection, Q, Jogos).
 
 getJogosOrderByRating(Connection, Jogos):-
-    Q = "SELECT * FROM jogo ORDER BY game_avaliacao DESC",
+    Q = "SELECT * FROM jogo WHERE is_oculto = false ORDER BY game_avaliacao DESC",
     db_query(Connection, Q, Jogos).
 
 
 getPriceJogo(Connection, JogoId, Preco):-
-    Q = "SELECT game_price FROM jogo WHERE game_id = %w",
+    Q = "SELECT game_price FROM jogo WHERE is_oculto = false and game_id = %w",
     db_parameterized_query(Connection, Q, [JogoId], PrecoRow),
     getUniqueDataRow(PrecoRow, Preco).
 
 
 jogoExiste(Connection, JogoId):-
-    Q = "SELECT COUNT(*) FROM jogo WHERE game_id = %w",
+    Q = "SELECT COUNT(*) FROM jogo WHERE is_oculto = false and game_id = %w",
     db_parameterized_query(Connection, Q, [JogoId], [row(CountRow)]),
     (CountRow > 0).
 
