@@ -1,5 +1,6 @@
 :- module(jogo,
-    [getJogos/2,
+    [
+    getJogos/2,
     getJogosById/3,
     getJogosByNome/3,
     getJogosUntilOnePrice/3,
@@ -18,7 +19,13 @@
     getPriceJogo/3,
     jogoExiste/2,
     getTodosOsGeneros/2,
-    print_generos/1
+    print_generos/1,
+    getNomeAndIDJogosCliente/3,
+    getAvaliacaoByGameIDUserId/4,
+    registrarAvaliacao/4,
+    checkJogoEstaFavoritado/4,
+    favoritarJogo/3,
+    desfavoritarJogo/3
 ]).
 :- use_module("./LocalDB/ConnectionDB").
 :- use_module("./LocalDB/DatabaseOperations").
@@ -100,6 +107,10 @@ getTodosOsGeneros(Connection, Generos):-
     Q = "SELECT game_genero, COUNT(game_genero) FROM jogo GROUP BY game_genero",
     db_query(Connection, Q, Generos).
 
+getNomeAndIDJogosCliente(Connection, UserID, Jogos) :-
+    Q = "SELECT j.game_id, j.game_nome FROM jogo j INNER JOIN compra c ON j.game_id = c.game_id WHERE c.user_id = %w",
+    db_parameterized_query(Connection, Q, [UserID], Jogos).
+
 /* Exibe (em uma mesma linha separados por vígulas ',') os gêneros e a quantidade de jogos com esses gêneros passados como parâmetro */
 print_generos([]) :- writeln("Nenhum gênero encontrado."), !.
 print_generos([row(Genero, QuantidadeJogos)]) :-
@@ -150,3 +161,23 @@ print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, 
 
 
 
+getAvaliacaoByGameIDUserId(Connection, JogoID, UserID, Nota) :-
+    Q = "SELECT avaliacao_compra FROM compra WHERE game_id = %w and user_id = %w",
+    db_parameterized_query(Connection, Q, [JogoID, UserID], Nota).
+
+registrarAvaliacao(Connection, JogoID, UserID, Nota) :-
+    Q = "UPDATE compra SET avaliacao_compra = %w WHERE game_id = %w and user_id = %w",
+    db_parameterized_query_no_return(Connection, Q, [Nota, JogoID, UserID]).
+
+checkJogoEstaFavoritado(Connection, JogoID, UserID, EstaFavoritado) :-
+    Q = "SELECT favoritar_jogo FROM compra WHERE user_id = %w and game_id = %w",
+    db_parameterized_query(Connection, Q, [UserID, JogoID], Row),
+    getUniqueDataRow(Row, EstaFavoritado).
+
+desfavoritarJogo(Connection, JogoID, UserID) :-
+    Q = "UPDATE compra SET favoritar_jogo = false WHERE game_id = %w and user_id = %w",
+    db_parameterized_query_no_return(Connection, Q, [JogoID, UserID]).
+
+favoritarJogo(Connection, JogoID, UserID) :-
+    Q = "UPDATE compra SET favoritar_jogo = true WHERE game_id = %w and user_id = %w",
+    db_parameterized_query_no_return(Connection, Q, [JogoID, UserID]).

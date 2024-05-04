@@ -29,7 +29,7 @@ exibeMenuCliente :-
     writeln(""),
     writeln("1 - Jogos Disponíveis"),
     writeln("2 - Mensagens"),
-    writeln("3 - Meu Perfil"), % TODO
+    writeln("3 - Meu Perfil"),
     writeln("4 - Sair"),
     writeln(""),
     writeln("================================================================================"),
@@ -39,7 +39,7 @@ exibeMenuCliente :-
     (
         Opcao = "1" -> jogosDisponiveis;
         Opcao = "2" -> mensagens;
-        Opcao = "3" -> read_line_to_string(user_input, Undefine); %TODO
+        Opcao = "3" -> perfilCliente;
         Opcao = "4" -> limparTela;
         (
             printColorido("Opção inválida! Por favor, tente novamente.", red),
@@ -359,6 +359,233 @@ exibeMensagens(UserID, FriendNickname, [row(IdRemetente, MensagemTexto) | Outras
     exibeMensagens(UserID, FriendNickname, Outras).
 
 
+
+
+
+
+
+
+perfilCliente :-
+    current_user_id(UserID),
+    get_connection(Connection),
+    getUserNicknameById(Connection, UserID, Nickname),
+    close_connection(Connection),
+    (   Nickname \= 'invalid_user_id' ->
+            writeln('================================================================================'),
+            write(Nickname), writeln('\'s Perfil'),
+            writeln('================================================================================'),
+            writeln(''),
+            writeln('1 - Meus jogos'),
+            writeln('2 - Minha carteira'),
+            writeln('3 - Editar perfil'),
+            writeln('4 - Voltar'),
+            writeln(''),
+            writeln('================================================================================'),
+            writeln('Selecione uma opção > '),
+
+            read_line_to_string(user_input, Opcao),
+            limparTela, 
+            
+            (   Opcao = "1" -> jogosCliente(UserID);
+                Opcao = "2" -> carteiraCliente;
+                Opcao = "3" -> editarPerfil;
+                Opcao = "4" -> exibeMenuCliente;
+                writeln('Opção inválida! Por favor, tente novamente.'),
+                perfilCliente
+            )
+    ;   writeln('ID Usuário Inválido')
+    ).
+
+jogosCliente(UserID) :-
+    % É preciso implementar o predicado que recupera os jogos do usuário a partir do BD. Jogos = [123, 245],
+    get_connection(Connection),
+    getNomeAndIDJogosCliente(Connection, UserID, Jogos),
+    close_connection(Connection),
+    writeln("================================================================================"),
+    writeln("                                Meus Jogos                                      "),
+    writeln("================================================================================"),
+    exibirJogosCliente(Jogos),
+    nl,
+    
+    writeln('Digite "sair" para voltar'),
+    writeln('Insira o ID do jogo que deseja acessar:'),
+    read_line_to_string(user_input, Input),
+    limparTela,
+    
+    (   Input = "sair" -> perfilCliente;
+        checkComprouJogo(UserID, Input, Result),
+        (
+            Result =:= 1 ->
+                acessarJogo(UserID, Input)
+            ;
+            writeln('ID do jogo inválido.'),
+            jogosCliente(UserID)
+        )
+    ).
+
+checkComprouJogo(UserID, JogoID, Result) :-
+    get_connection(Connection),
+    (
+        naoComprouJogo(Connection, JogoID, UserID) -> Result = 0; Result = 1
+    ),
+    close_connection(Connection).
+
+
+
+acessarJogo(UserID, JogoID) :-
+    writeln('Opções disponíveis para o jogo:'),
+    writeln('1. Avaliar o jogo'),
+    writeln('2. Favoritar o jogo'),
+    writeln('3. Deixar um comentário'),
+    writeln('4. Denunciar o jogo'),
+    writeln('5. Voltar'),
+    writeln('Digite o número da opção desejada:'),
+
+    read_line_to_string(user_input, Opcao),
+    limparTela,
+    
+    (   Opcao = "1" -> avaliarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
+        Opcao = "2" -> favoritarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
+        Opcao = "3" -> comentarJogo(Connection, UserID, JogoID), acessarJogo(UserID, JogoID);
+        Opcao = "4" -> denunciarJogo(Connection, JogoID, UserID), acessarJogo(UserID, JogoID);
+        Opcao = "5" -> jogosCliente(UserID);
+        writeln('Opção inválida.')
+    ).
+
+avaliarJogo(UserID, JogoID) :-
+   
+    writeln('================================================================================'),
+    writeln('Insira uma nota de 0 a 10 > '),
+
+    read(Nota),
+    (   number(Nota),
+        0 =< Nota,
+        Nota =< 10 
+        
+        -> (    
+                get_connection(Connection),
+                registrarAvaliacao(Connection, JogoID, UserID, Nota),
+                close_connection(Connection),
+                limparTela,
+                writeln('================================================================================'),
+                writeln('                         Jogo avaliado com sucesso                              '),
+                writeln('================================================================================')
+            )
+        
+        ;  (
+                limparTela,
+                writeln('Entrada inválida. Por favor, insira um valor dentro da faixa'),
+                avaliarJogo(UserID, JogoID)
+            )
+    ).
+
+favoritarJogo(UserID, JogoID) :-
+    % Supus que exista fora de cliente.pl. Atentar também para o predicado 'execute' que é chamado dentro da função.
+    get_connection(Connection),
+    checkJogoEstaFavoritado(Connection, JogoID, UserID, EstaFavoritado),
+    (   EstaFavoritado == '1' ->
+        writeln('================================================================================'),
+        writeln('O jogo já está em seus favoritos'),
+        writeln('Deseja removê-lo dos favoritos? (s/n) >'),
+
+        read_line_to_string(user_input, Opcao),
+        limparTela,
+
+        (   string_lower(Opcao, 's') ->
+            
+            desfavoritarJogo(Connection, JogoID, UserID),
+            writeln('================================================================================'),
+            writeln('Jogo removido dos favoritos!')
+        ;   string_lower(Opcao, 'n') ->
+            true
+        ;   writeln('Opção inválida!')
+        )
+    ;   favoritarJogo(Connection, JogoID, UserID),
+        writeln('================================================================================'),
+        writeln('Jogo favoritado com sucesso')
+    ),
+    close_connection(Connection).
+
+comentarJogo(Connection, UserID, JogoID) :-
+    writeln('================================================================================'),
+    writeln('Insira seu comentário ou digite "sair" para voltar >'),
+
+    read_line_to_string(user_input, Comentario),
+    limparTela,
+
+    (   Comentario = sair -> acessarJogo(Connection, UserID, JogoID);
+        %   aqui eu supus que vai haver algum predicado registrarComentario/4 que faça a inserção do comentário no BD.
+        registrarComentario(Connection, UserID, JogoID, Comentario)
+    ).
+
+denunciarJogo(Connection, JogoID, UserID) :-
+    writeln('================================================================================'),
+    writeln('                                  Denúncia                                      '),
+    writeln('================================================================================'),
+    writeln(''),
+    writeln('1. Não funciona/possui algum problema crítico'),
+    writeln('2. Contém vírus/malwares'),
+    writeln('3. Viola leis judiciais'),
+    writeln('4. Conteúdo adulto não classificado'),
+    writeln('5. Fraude (tenta obter dados de forma fraudulenta)'),
+    writeln('6. Outros'),
+    writeln('7. Voltar'),
+    writeln(''),
+    writeln('================================================================================'),
+    writeln('Selecione o motivo da denúncia > '),
+
+    read(Opcao),
+    limparTela,
+
+    escolherDenuncia(Opcao, Connection, JogoID, UserID).
+
+escolherDenuncia("1", Connection, JogoID, UserID) :-
+    registrarDenuncia(Connection, JogoID, UserID, "Não funciona/possui algum problema crítico"),
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia("2", Connection, JogoID, UserID) :-
+    registrarDenuncia(Connection, JogoID, UserID, "Contém vírus/malwares"),
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia("3", Connection, JogoID, UserID) :-
+    registrarDenuncia(Connection, JogoID, UserID, "Viola leis judiciais"),
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia("4", Connection, JogoID, UserID) :-
+    registrarDenuncia(Connection, JogoID, UserID, "Conteúdo adulto não classificado"),
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia("5", Connection, JogoID, UserID) :-
+    registrarDenuncia(Connection, JogoID, UserID, "Fraude"),
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia("6", Connection, JogoID, UserID) :-
+    registrarDenuncia(Connection, JogoID, UserID, "Outros"),
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia("7", Connection, JogoID, UserID) :-
+    acessarJogo(Connection, UserID, JogoID).
+
+escolherDenuncia(_, Connection, JogoID, UserID) :-
+    writeln('Opção inválida! Por favor, tente novamente.'),
+    acessarJogo(Connection, UserID, JogoID).
+
+% Não entendi bem como deve ser a exibição em exibirJogosCliente. Atualmente imprimimos os id: reformular post.
+exibirJogosCliente([]).
+exibirJogosCliente([Jogo|Resto]) :-
+    Jogo = row(GameID, GameNome),
+    format("~w | ~w ~n", [GameID, GameNome]),
+    exibirJogosCliente(Resto).
+
+
+
+
+
+
+
+
+
+
 carteiraCliente :-
     get_connection(Connection),
     current_user_id(UserID),
@@ -387,7 +614,7 @@ carteiraCliente :-
 
     (
         Opcao == "1" -> selecionarQntSaldo;
-        Opcao == "2" -> perfilClienteTEMPORARIO;
+        Opcao == "2" -> perfilCliente;
      
         (
             printColorido("Opção inválida! Por favor, tente novamente.", red),
@@ -543,7 +770,7 @@ editarPerfil :-
         Opcao == "3" -> alterarEmail;
         Opcao == "4" -> alterarSenha;
         Opcao == "5" -> excluirConta;
-        Opcao == "6" -> perfilClienteTEMPORARIO;
+        Opcao == "6" -> perfilCliente;
 
         (
             printColorido("Opção inválida! Por favor, tente novamente.", red),

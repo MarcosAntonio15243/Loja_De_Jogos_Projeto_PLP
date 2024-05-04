@@ -1,6 +1,8 @@
 :- module(databaseOperations, [
     get_connection/1,
     close_connection/1,
+    db_query/3,
+    db_query_no_return/2,
     db_parameterized_query/4,
     db_parameterized_query_no_return/3,
     userAlreadyExistsById/2,
@@ -23,7 +25,10 @@
     atualizaUserNick/3,
     atualizaUserEmail/3,
     atualizaUserSenha/3,
-    deletaUserConta/2
+    deletaUserConta/2,
+    getUniqueDataRow/2,
+    getSaldoUsuario/3,
+    setSaldoUsuario/3
 ]).
 :- use_module(library(odbc)).
 
