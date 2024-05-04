@@ -57,6 +57,11 @@ db_parameterized_query_no_return(Connection, Query, Parameters):-
 
 /* CONSULTAS COMUMENTE UTILIZADAS */
 
+
+
+
+
+
 /* Verifica se já existe um usuário cadastrado com um determinado Id */
 userAlreadyExistsById(Connection, Id) :-
     Q = "SELECT COUNT(*) FROM usuario WHERE user_id = '%w'",

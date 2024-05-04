@@ -37,7 +37,8 @@ createGames(Connection) :-
             game_description TEXT NOT NULL,
             game_data_lancamento DATE NOT NULL,
             game_avaliacao FLOAT NOT NULL,
-            game_price FLOAT NOT NULL
+            game_price FLOAT NOT NULL,
+            game_visibilidade BOOLEAN DEFAULT (true)
         );", _).
 
 /* Cria a tabela de Compras */

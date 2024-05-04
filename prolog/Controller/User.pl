@@ -147,7 +147,7 @@ criarConta :-
             printColorido("Senhas digitadas não são iguais!", red),
             desejaContinuarCriarConta
         ;
-            cadastrarConta(Nickname, Nome, Email, Senha, Result),
+            cadastrarConta(Nickname, Nome, Email, SenhaString, Result),
             (Result =:= 1) ->
                 limparTela,
                 printColorido("Cadastro realizado com sucesso!", green),
@@ -190,8 +190,8 @@ cadastrarConta(Nickname, Nome, Email, Senha, Result) :-
         split_string(Txt, "T", "", DataSplitada),
         nth0(0, DataSplitada, DataFormatada),
         
-        Q = "INSERT INTO usuario (user_nickname, user_nome, user_email, user_senha, user_tipo, user_date, user_saldo) values (%w, %w, %w, %w, %w, %w, %w)",
-        db_parameterized_query_no_return(Connection, Q, [Nickname, Nome, Email, Senha, "Padrão", DataFormatada, 0]),
+        Q = "INSERT INTO usuario (user_nickname, user_nome, user_email, user_senha, user_tipo, user_date, user_saldo) VALUES ('%w', '%w', '%w', '%w', '%w', '%w', %w)",
+        db_parameterized_query_no_return(Connection, Q, [Nickname, Nome, Email, Senha, 'Padrão', DataFormatada, 0]),
         Result is 1
     ),
     close_connection(Connection).

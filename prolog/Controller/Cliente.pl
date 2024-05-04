@@ -223,7 +223,7 @@ exibeJogos(Jogos) :-
 */
 validaJogoID(_, [], 0) :- !.
 validaJogoID(JogoIDArrayChars, [Jogo|OutrosJogos], Result) :-
-    Jogo = row(GameIDString, _, _, _, _, _, _),
+    Jogo = row(GameIDString, _, _, _, _, _, _, _),
     string_chars(GameIDString, GameIDArrayChars),
     (
         JogoIDArrayChars == GameIDArrayChars ->
@@ -253,7 +253,7 @@ exibeJogoCompleto(Jogo) :-
         OpcaoCompraLowerArrayChar == ['s'] ->
             get_connection(Connection),
             current_user_id(UserID),
-            Jogo = row(JogoID, _, _, _, _, _, _),
+            Jogo = row(JogoID, _, _, _, _, _, _, _),
             realizaCompra(Connection, JogoID, UserID),
             exibeMenuCliente
         ;
