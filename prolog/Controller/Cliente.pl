@@ -315,7 +315,6 @@ validaNicknameFriendMensagem(UserID, FriendNicknameString, Result) :-
 
 /* Abre o chat de conversas entre usuários */
 abrirChat(FriendNickname) :-
-    %limparTela,
     writeln("================================================================================"),
     writeln("                                     CHAT                                       "),
     writeln("================================================================================"),
@@ -391,7 +390,6 @@ perfilCliente :-
     ).
 
 jogosCliente(UserID) :-
-    % É preciso implementar o predicado que recupera os jogos do usuário a partir do BD. Jogos = [123, 245],
     get_connection(Connection),
     getNomeAndIDJogosCliente(Connection, UserID, Jogos),
     close_connection(Connection),
@@ -485,7 +483,6 @@ avaliarJogo(UserID, JogoID) :-
     ).
 
 favoritarJogo(UserID, JogoID) :-
-    % Supus que exista fora de cliente.pl. Atentar também para o predicado 'execute' que é chamado dentro da função.
     get_connection(Connection),
     checkJogoEstaFavoritado(Connection, JogoID, UserID, EstaFavoritado),
     (   EstaFavoritado == '1' ->
