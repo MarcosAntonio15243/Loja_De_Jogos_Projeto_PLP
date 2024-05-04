@@ -5,7 +5,7 @@
 :- use_module("./LocalDB/ConnectionDB").
 :- use_module("./LocalDB/DatabaseOperations").
 :- use_module(library(date)).
-
+:- use_module("./Admin", [menuAdmin/0]).
 :- use_module("./Cliente", [menuCliente/1]).
 
 /* Menu inicial do sistema */
@@ -75,8 +75,7 @@ login :-
             (UserTipo = 'Padrão' ->
                 menuCliente(UserID) % Transição para as telas de Usuário Padrão
             ;
-                writeln("ADMINISTRADOR!")
-                % Adicionar transição para as telas de Administrador
+                menuAdmin % Transição para as telas de Usuário Administrador
             ),
             menuInicial
         ;

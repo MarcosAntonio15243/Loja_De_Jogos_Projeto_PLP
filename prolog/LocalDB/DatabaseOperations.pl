@@ -28,7 +28,8 @@
     deletaUserConta/2,
     getUniqueDataRow/2,
     getSaldoUsuario/3,
-    setSaldoUsuario/3
+    setSaldoUsuario/3,
+    gameAlreadyExistByName/2
 ]).
 :- use_module(library(odbc)).
 
@@ -91,6 +92,11 @@ userAlreadyExistsByEmail(Connection, Email) :-
 checkExistsUserByEmailSenha(Connection, Email, Senha) :-
     Q = "SELECT COUNT(*) FROM usuario WHERE user_email = '%w' AND user_senha = '%w'",
     db_parameterized_query(Connection, Q, [Email, Senha], [row(CountRow)]),
+    (CountRow > 0).
+
+gameAlreadyExistByName(Connection, GameName) :-
+    Q = "SELECT COUNT(*) FROM jogo WHERE game_nome = '%w'",
+    db_parameterized_query(Connection, Q, [GameName], [row(CountRow)]),
     (CountRow > 0).
 
 /* Busca todos os dados de um usuário de acordo com o seu Email e Senha */
