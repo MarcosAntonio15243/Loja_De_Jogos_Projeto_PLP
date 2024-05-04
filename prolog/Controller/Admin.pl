@@ -254,4 +254,4 @@ dashboard :-
      Opcao == "3" -> limparTela, getJogosOrderByPrice(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
      Opcao == "4" -> limparTela, getJogosMinimumPrice(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
      Opcao == "5" -> limparTela, getJogosOrderByDate(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
-     Opcao == "6" -> writeln('Saindo...'), writeln(''), halt).
+     Opcao == "6" -> limparTela, menuAdmin).
