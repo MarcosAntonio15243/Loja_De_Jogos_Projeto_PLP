@@ -1,5 +1,4 @@
-:- module(jogo,
-    [
+:- module(jogo, [
     getJogos/2,
     getJogosById/3,
     getJogosByNome/3,
@@ -25,10 +24,13 @@
     registrarAvaliacao/4,
     checkJogoEstaFavoritado/4,
     favoritarJogo/3,
-    desfavoritarJogo/3
+    desfavoritarJogo/3,
+    registrarComentario/4,
+    registrarDenuncia/5
 ]).
 :- use_module("./LocalDB/ConnectionDB").
 :- use_module("./LocalDB/DatabaseOperations").
+:- use_module(library(date)).
 
 /* Busca todos os jogos do sistema */
 getJogos(Connection, Jogos):-
@@ -175,9 +177,27 @@ checkJogoEstaFavoritado(Connection, JogoID, UserID, EstaFavoritado) :-
     getUniqueDataRow(Row, EstaFavoritado).
 
 desfavoritarJogo(Connection, JogoID, UserID) :-
-    Q = "UPDATE compra SET favoritar_jogo = false WHERE game_id = %w and user_id = %w",
+    Q = "UPDATE compra SET favoritar_jogo = false WHERE game_id = %w AND user_id = %w",
     db_parameterized_query_no_return(Connection, Q, [JogoID, UserID]).
 
 favoritarJogo(Connection, JogoID, UserID) :-
-    Q = "UPDATE compra SET favoritar_jogo = true WHERE game_id = %w and user_id = %w",
+    Q = "UPDATE compra SET favoritar_jogo = true WHERE game_id = %w AND user_id = %w",
     db_parameterized_query_no_return(Connection, Q, [JogoID, UserID]).
+
+registrarComentario(Connection, UserID, JogoID, Comentario) :-
+    /* Transformando a data atual para o formato YYYY-MM-DD */
+    get_time(TStamp),
+    format_time(string(Txt),'%FT%T%z',TStamp),
+    split_string(Txt, "T", "", DataSplitada),
+    nth0(0, DataSplitada, DataFormatada),
+    Q = "INSERT INTO comentario(id_usuario, id_jogo, comentario_texto, comentario_date) VALUES ('%w', '%w', '%w', '%w')",
+    db_parameterized_query_no_return(Connection, Q, [UserID, JogoID, Comentario, DataFormatada]).
+
+registrarDenuncia(Connection, UserID, JogoID, Motivo, Descricao) :-
+    /* Transformando a data atual para o formato YYYY-MM-DD */
+    get_time(TStamp),
+    format_time(string(Txt),'%FT%T%z',TStamp),
+    split_string(Txt, "T", "", DataSplitada),
+    nth0(0, DataSplitada, DataFormatada),
+    Q = "INSERT INTO denuncia(id_usuario, id_jogo, denuncia_motivo, denuncia_descricao, denuncia_data) VALUES (%w, %w, %w, %w, %w)",
+    db_parameterized_query_no_return(Connection, Q, [UserID, JogoID, Motivo, Descricao, DataFormatada]).

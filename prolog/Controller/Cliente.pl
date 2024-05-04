@@ -5,6 +5,7 @@
 :- use_module("Jogo").
 :- use_module("Compra").
 :- dynamic(current_user_id/1).
+
 current_user_id(0).
 
 /*
@@ -358,13 +359,6 @@ exibeMensagens(UserID, FriendNickname, [row(IdRemetente, MensagemTexto) | Outras
     ),
     exibeMensagens(UserID, FriendNickname, Outras).
 
-
-
-
-
-
-
-
 perfilCliente :-
     current_user_id(UserID),
     get_connection(Connection),
@@ -372,7 +366,7 @@ perfilCliente :-
     close_connection(Connection),
     (   Nickname \= 'invalid_user_id' ->
             writeln('================================================================================'),
-            write(Nickname), writeln('\'s Perfil'),
+            ansi_format([fg(blue)], '~w', [Nickname]), writeln('\'s Perfil'),
             writeln('================================================================================'),
             writeln(''),
             writeln('1 - Meus jogos'),
@@ -390,10 +384,10 @@ perfilCliente :-
                 Opcao = "2" -> carteiraCliente;
                 Opcao = "3" -> editarPerfil;
                 Opcao = "4" -> exibeMenuCliente;
-                writeln('Opção inválida! Por favor, tente novamente.'),
+                printColorido('Opção inválida! Por favor, tente novamente.', red),
                 perfilCliente
             )
-    ;   writeln('ID Usuário Inválido')
+    ;   printColorido('ID Usuário Inválido', red)
     ).
 
 jogosCliente(UserID) :-
@@ -412,13 +406,14 @@ jogosCliente(UserID) :-
     read_line_to_string(user_input, Input),
     limparTela,
     
-    (   Input = "sair" -> perfilCliente;
+    (   Input = "sair" ->
+            perfilCliente;
         checkComprouJogo(UserID, Input, Result),
         (
             Result =:= 1 ->
                 acessarJogo(UserID, Input)
             ;
-            writeln('ID do jogo inválido.'),
+            printColorido('ID do jogo inválido.', red),
             jogosCliente(UserID)
         )
     ).
@@ -430,15 +425,22 @@ checkComprouJogo(UserID, JogoID, Result) :-
     ),
     close_connection(Connection).
 
+exibirJogosCliente([]).
+exibirJogosCliente([Jogo|Resto]) :-
+    Jogo = row(GameID, GameNome),
+    format("~w | ~w ~n", [GameID, GameNome]),
+    exibirJogosCliente(Resto).
 
 
 acessarJogo(UserID, JogoID) :-
     writeln('Opções disponíveis para o jogo:'),
+    writeln(''),
     writeln('1. Avaliar o jogo'),
     writeln('2. Favoritar o jogo'),
     writeln('3. Deixar um comentário'),
     writeln('4. Denunciar o jogo'),
     writeln('5. Voltar'),
+    writeln(''),
     writeln('Digite o número da opção desejada:'),
 
     read_line_to_string(user_input, Opcao),
@@ -446,10 +448,10 @@ acessarJogo(UserID, JogoID) :-
     
     (   Opcao = "1" -> avaliarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
         Opcao = "2" -> favoritarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
-        Opcao = "3" -> comentarJogo(Connection, UserID, JogoID), acessarJogo(UserID, JogoID);
-        Opcao = "4" -> denunciarJogo(Connection, JogoID, UserID), acessarJogo(UserID, JogoID);
+        Opcao = "3" -> comentarJogo(UserID, JogoID), acessarJogo;
+        Opcao = "4" -> denunciarJogo(JogoID, UserID), acessarJogo(UserID, JogoID);
         Opcao = "5" -> jogosCliente(UserID);
-        writeln('Opção inválida.')
+        printColorido('Opção inválida.', red)
     ).
 
 avaliarJogo(UserID, JogoID) :-
@@ -474,7 +476,7 @@ avaliarJogo(UserID, JogoID) :-
         
         ;  (
                 limparTela,
-                writeln('Entrada inválida. Por favor, insira um valor dentro da faixa'),
+                printColorido('Entrada inválida. Por favor, insira um valor dentro da faixa', red),
                 avaliarJogo(UserID, JogoID)
             )
     ).
@@ -495,30 +497,35 @@ favoritarJogo(UserID, JogoID) :-
             
             desfavoritarJogo(Connection, JogoID, UserID),
             writeln('================================================================================'),
-            writeln('Jogo removido dos favoritos!')
+            printColorido('Jogo removido dos favoritos!', green)
         ;   string_lower(Opcao, 'n') ->
             true
-        ;   writeln('Opção inválida!')
+        ;   printColorido('Opção inválida!', red)
         )
     ;   favoritarJogo(Connection, JogoID, UserID),
         writeln('================================================================================'),
-        writeln('Jogo favoritado com sucesso')
+        printColorido('Jogo favoritado com sucesso', green)
     ),
     close_connection(Connection).
 
-comentarJogo(Connection, UserID, JogoID) :-
+comentarJogo(UserID, JogoID) :-
     writeln('================================================================================'),
     writeln('Insira seu comentário ou digite "sair" para voltar >'),
 
     read_line_to_string(user_input, Comentario),
     limparTela,
 
-    (   Comentario = sair -> acessarJogo(Connection, UserID, JogoID);
-        %   aqui eu supus que vai haver algum predicado registrarComentario/4 que faça a inserção do comentário no BD.
-        registrarComentario(Connection, UserID, JogoID, Comentario)
+    (
+        Comentario = "sair" -> 
+            acessarJogo(UserID, JogoID)
+        ;
+            get_connection(Connection),
+            registrarComentario(Connection, UserID, JogoID, Comentario),
+            close_connection(Connection),
+            printColorido("Comentário registrado com sucesso!", green)
     ).
 
-denunciarJogo(Connection, JogoID, UserID) :-
+denunciarJogo(JogoID, UserID) :-
     writeln('================================================================================'),
     writeln('                                  Denúncia                                      '),
     writeln('================================================================================'),
@@ -534,57 +541,59 @@ denunciarJogo(Connection, JogoID, UserID) :-
     writeln('================================================================================'),
     writeln('Selecione o motivo da denúncia > '),
 
-    read(Opcao),
+    read_line_to_string(user_input, Opcao),
     limparTela,
 
-    escolherDenuncia(Opcao, Connection, JogoID, UserID).
+    escolherDenuncia(Opcao, JogoID, UserID).
 
-escolherDenuncia("1", Connection, JogoID, UserID) :-
-    registrarDenuncia(Connection, JogoID, UserID, "Não funciona/possui algum problema crítico"),
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("1", JogoID, UserID) :-
+    get_connection(Connection),
+    registrarDenuncia(JogoID, UserID, "Não funciona/possui algum problema crítico"),
+    close_connection(Connection),
+    printColorido("Denúncia registrada com sucesso", green),
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia("2", Connection, JogoID, UserID) :-
-    registrarDenuncia(Connection, JogoID, UserID, "Contém vírus/malwares"),
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("2", JogoID, UserID) :-
+    get_connection(Connection),
+    registrarDenuncia(JogoID, UserID, "Contém vírus/malwares"),
+    close_connection(Connection),
+    printColorido("Denúncia registrada com sucesso", green),
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia("3", Connection, JogoID, UserID) :-
-    registrarDenuncia(Connection, JogoID, UserID, "Viola leis judiciais"),
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("3", JogoID, UserID) :-
+    get_connection(Connection),
+    registrarDenuncia(JogoID, UserID, "Viola leis judiciais"),
+    close_connection(Connection),
+    printColorido("Denúncia registrada com sucesso", green),
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia("4", Connection, JogoID, UserID) :-
-    registrarDenuncia(Connection, JogoID, UserID, "Conteúdo adulto não classificado"),
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("4", JogoID, UserID) :-
+    get_connection(Connection),
+    registrarDenuncia(JogoID, UserID, "Conteúdo adulto não classificado"),
+    close_connection(Connection),
+    printColorido("Denúncia registrada com sucesso", green),
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia("5", Connection, JogoID, UserID) :-
-    registrarDenuncia(Connection, JogoID, UserID, "Fraude"),
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("5", JogoID, UserID) :-
+    get_connection(Connection),
+    registrarDenuncia(JogoID, UserID, "Fraude"),
+    close_connection(Connection),
+    printColorido("Denúncia registrada com sucesso", green),
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia("6", Connection, JogoID, UserID) :-
-    registrarDenuncia(Connection, JogoID, UserID, "Outros"),
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("6", JogoID, UserID) :-
+    get_connection(Connection),
+    registrarDenuncia(JogoID, UserID, "Outros"),
+    close_connection(Connection),
+    printColorido("Denúncia registrada com sucesso", green),
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia("7", Connection, JogoID, UserID) :-
-    acessarJogo(Connection, UserID, JogoID).
+escolherDenuncia("7", JogoID, UserID) :-
+    acessarJogo(UserID, JogoID).
 
-escolherDenuncia(_, Connection, JogoID, UserID) :-
-    writeln('Opção inválida! Por favor, tente novamente.'),
-    acessarJogo(Connection, UserID, JogoID).
-
-% Não entendi bem como deve ser a exibição em exibirJogosCliente. Atualmente imprimimos os id: reformular post.
-exibirJogosCliente([]).
-exibirJogosCliente([Jogo|Resto]) :-
-    Jogo = row(GameID, GameNome),
-    format("~w | ~w ~n", [GameID, GameNome]),
-    exibirJogosCliente(Resto).
-
-
-
-
-
-
-
-
-
+escolherDenuncia(_, JogoID, UserID) :-
+    printColorido('Opção inválida! Por favor, tente novamente.', red),
+    acessarJogo(UserID, JogoID).
 
 carteiraCliente :-
     get_connection(Connection),
