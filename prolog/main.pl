@@ -1,6 +1,7 @@
 :- set_prolog_flag(encoding, utf8).
 :- encoding(utf8).
 :- use_module(util).
+:- use_module(cliente).
 :- use_module("./LocalDB/ConnectionDB", [
     iniciandoDatabase/1,
     encerrandoDatabase/1
