@@ -52,6 +52,22 @@ O usuário administrador tem privilégios no sistema, como cadastrar jogos, atua
         Port: 5432 
         Password: postgres 
        ```
+3. Em caso de sistemas Unix, o driver do PostreSQL pode ser instalado e configurado da seguinte maneira:
+      - Instalação do driver do PostgreSQL com `sudo apt-get install odbc-postgresql`
+      - Instalação do ODBC para Prolog com `apt install swi-prolog-odbc`
+      - Em seguida, no terminal, a partir do diretório raiz, navegar para o diretório do arquivo de inicialização do odbc com `cd /etc` e abrir o arquivo de inicializaçao com `sudo vim odbc.ini`ou `sudo nano odbc.ini`(ou algum outro editor com permissão de superusuário).
+      - Após isso, colar os seguintes dados de configuração da conexão com o banco:
+        ```
+         [SWI-Prolog]
+         Description = Conexão ODBC para o PostgreSQL
+         Driver = PostgreSQL Unicode
+         Servername = localhost
+         Database = lojajogos
+         UserName = postgres
+         Password = postgres
+         Port = 5432
+        ```
+      - Por fim, basta salvar e fechar o arquivo que, assim, a conexão com o banco estará configurada.
      
 4. Após a instalação, entre no pgAdmin e crie a database com o nome "lojajogos"
 5. Configurações iniciais:
