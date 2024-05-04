@@ -15,7 +15,6 @@
     enviarMensagem/4,
     getUserSaldoById/3,
     getUserSenhaById/3,
-    getInformacoesPerfil/3,
     getUserNomeById/3,
     getUserEmailById/3,
     getUserTipoById/3,
