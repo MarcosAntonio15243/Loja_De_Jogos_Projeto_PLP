@@ -406,7 +406,10 @@ jogosCliente(UserID) :-
     read_line_to_string(user_input, Input),
     limparTela,
     
-    (   Input = "sair" ->
+    (   Input = "" ->
+            printColorido('ID do jogo inválido.', red),
+            jogosCliente(UserID);
+        Input = "sair" ->
             perfilCliente;
         checkComprouJogo(UserID, Input, Result),
         (

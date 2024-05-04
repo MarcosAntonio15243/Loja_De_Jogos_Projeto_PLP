@@ -22,10 +22,9 @@ menuInicial :-
     writeln("================================================================================"),
     writeln("Selecione uma opção: "),
     read_line_to_string(user_input, Opcao),
-    %escolherOpcao(Opcao),
     limparTela,
     (
-        Opcao = "1" -> login, menuInicial
+        Opcao = "1" -> login
         ;
         Opcao = "2" -> criarConta
         ;
@@ -78,8 +77,8 @@ login :-
             ;
                 writeln("ADMINISTRADOR!")
                 % Adicionar transição para as telas de Administrador
-            )
-            %menuInicial
+            ),
+            menuInicial
         ;
             printColorido("Email ou senha incorretos!", red),
             desejaContinuarLogin
