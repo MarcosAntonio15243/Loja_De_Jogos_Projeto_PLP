@@ -18,7 +18,7 @@
     getJogosOrderByRating/2,
     getJogosOrderByRatingAdm/2,
     getJogosMaisVendidos/2,
-    print_jogos/1,
+    print_jogos/2,
     print_jogo/1,
     print_jogo_detalhado/1,
     print_jogo_detalhado_individual/1,
@@ -35,7 +35,7 @@
     desfavoritarJogo/3,
     registrarComentario/4,
     registrarDenuncia/5,
-    printJogosIdNome/1,
+    printJogosIdNome/2,
     printJogoDetalhadoAdm/1,
     existeAlgumJogoVendido/1
 ]).
@@ -123,8 +123,8 @@ getJogosMaisVendidos(Connection, Jogos):-
     db_query(Connection, Q, Jogos).
 
 existeAlgumJogoVendido(Connection):-
-    Q = "SELECT COUNT(*) FROM jogo j JOIN compra c ON j.game_id = c.game_id GROUP BY j.game_id ORDER BY COUNT(j.game_id) DESC",
-    db_query(Connection, Q, [row(CountRow)]),
+    Q = "SELECT COUNT(*) FROM compra",
+    db_parameterized_query(Connection, Q, [], [row(CountRow)]),
     (CountRow > 0).
 
 /* Busca os jogos ordenados de acordo com a avaliação (do mais avaliado ao menos avaliado) */
@@ -170,23 +170,47 @@ print_generos([row(Genero, QuantidadeJogos)|OutrosGeneros]) :-
     ansi_format([fg(blue)], "~w(~d), ", [Genero, QuantidadeJogos]),
     print_generos(OutrosGeneros).
 
-/* Exibe a lista de jogos passados como parâmetro */
-print_jogos([]) :-
+/* Exibe a lista de jogos passados como parâmetro de acordo com o filtro */
+print_jogos(_, []) :-
     writeln('Nenhum jogo encontrado.').
-print_jogos([Jogo|OutrosJogos]) :-
+print_jogos(Filtro, Jogos) :-
     writeln('================================================================================'),
     writeln('                                 LISTA DE JOGOS                                 '),
     writeln('================================================================================'),
-    print_jogo(Jogo),
-    writeln('--------------------------------------------------------------------------------'),
-    print_jogos_rest(OutrosJogos).
-/* Exibe, um a um, os jogos da lista de jogos */
-print_jogos_rest([]).
-print_jogos_rest([Jogo|OutrosJogos]) :-
-    print_jogo(Jogo),
+    print_jogo_por_filtro(Filtro, Jogos).
+/* Exibe os jogos e as informações de acordo com o filtro */
+print_jogo_por_filtro(_, []) :- !.
+print_jogo_por_filtro("1", [row(ID, Nome, Genero, _, _, _, Preco, _)|OutrosJogos]) :-
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~n', [ID, Nome, Genero, Preco]),
     printColorido('Digite o ID do jogo para ver detalhes', green),
     writeln('--------------------------------------------------------------------------------'),
-    print_jogos_rest(OutrosJogos).
+    print_jogo_por_filtro("1", OutrosJogos), !.
+print_jogo_por_filtro("2", Jogos) :- print_jogo_por_filtro("1", Jogos), !.
+print_jogo_por_filtro("3", Jogos) :- print_jogo_por_filtro("1", Jogos), !.
+print_jogo_por_filtro("4", [row(ID, Nome, Genero, _, _, _, Preco, _)|OutrosJogos]) :-
+    getQuantidadesVendidasJogo(ID, QuantidadesVendidas),
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~nQuantidades vendidas: ~d~n', [ID, Nome, Genero, Preco, QuantidadesVendidas]),
+    printColorido('Digite o ID do jogo para ver detalhes', green),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_por_filtro("4", OutrosJogos), !.
+print_jogo_por_filtro("5", [row(ID, Nome, Genero, _, date(Ano, Mes, Dia), _, Preco, _)|OutrosJogos]) :-
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~nData de Lançamento: ~w-~w-~w~n', [ID, Nome, Genero, Preco, Ano, Mes, Dia]),
+    printColorido('Digite o ID do jogo para ver detalhes', green),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_por_filtro("5", OutrosJogos), !.
+print_jogo_por_filtro("6", [row(ID, Nome, Genero, _, _, Avaliacao, Preco, _)|OutrosJogos]) :-
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~nAvaliação: ~1f~n', [ID, Nome, Genero, Preco, Avaliacao]),
+    printColorido('Digite o ID do jogo para ver detalhes', green),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_por_filtro("6", OutrosJogos), !.
+
+getQuantidadesVendidasJogo(JogoID, QuantidadesVendidas) :-
+    Q = "SELECT COUNT(*) FROM compra WHERE game_id = %w",
+    get_connection(Connection),
+    db_parameterized_query(Connection, Q, [JogoID], [row(CountRow)]),
+    close_connection(Connection),
+    QuantidadesVendidas = CountRow.
+
 
 /* Exibe o ID, nome, gênero e preço de um jogo passado como parâmetro */
 print_jogo(row(ID, Nome, Genero, _, _, _, Preco, _)) :-
@@ -201,7 +225,7 @@ print_jogo_detalhado([Jogo|_]) :-
     writeln('--------------------------------------------------------------------------------').
 
 /*
-    |Exibe todos os dados de um único jogo passado como parâmetro (ID, Nome, Genero, Descricao,
+    | Exibe todos os dados de um único jogo passado como parâmetro (ID, Nome, Genero, Descricao,
     | Data de lançamento (no formatp: Ano, Mes, Dia), Avaliacao, Preco)
 */
 print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, Dia), Avaliacao, Preco, _)) :-
@@ -210,6 +234,7 @@ print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, 
     writeln('================================================================================'),
     format('ID: ~d~nNome: ~w~nGênero: ~w~nDescrição: ~w~nData de Lançamento: ~d/~d/~d~nAvaliação: ~1f~nPreço: ~2f~n', [ID, Nome, Genero, Descricao, Dia, Mes, Ano, Avaliacao, Preco]).
 
+/*
 printJogosIdNome([Jogo|OutrosJogos]) :-
     writeln('================================================================================'),
     writeln('                                 LISTA DE JOGOS                                 '),
@@ -219,14 +244,42 @@ printJogosIdNome([Jogo|OutrosJogos]) :-
     printJogosIdNomeRest(OutrosJogos).
 
 printJogoIdNome(row(ID, Nome, _, _, _, _, _, _)) :-
-    format('ID: ~d~nNome: ~w', [ID, Nome]).
+    format('ID: ~d~nNome: ~w~n', [ID, Nome]).
 
 printJogosIdNomeRest([Jogo|OutrosJogos]):-
     printJogoIdNome(Jogo),
     writeln('--------------------------------------------------------------------------------'),
     printJogosIdNomeRest(OutrosJogos).
 
-printJogosIdNomeRest([]).
+printJogosIdNomeRest([]).*/
+
+printJogosIdNome(Filtro, Jogos) :-
+    writeln('================================================================================'),
+    writeln('                                 LISTA DE JOGOS                                 '),
+    writeln('================================================================================'),
+    print_jogo_id_nome_por_filtro(Filtro, Jogos).
+
+print_jogo_id_nome_por_filtro(_, []) :- !.
+print_jogo_id_nome_por_filtro("1", [row(ID, Nome, Genero, _, _, _, Preco, _)|OutrosJogos]) :-
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~n', [ID, Nome, Genero, Preco]),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_id_nome_por_filtro("1", OutrosJogos), !.
+print_jogo_id_nome_por_filtro("2", Jogos) :- print_jogo_id_nome_por_filtro("1", Jogos), !.
+print_jogo_id_nome_por_filtro("3", Jogos) :- print_jogo_id_nome_por_filtro("1", Jogos), !.
+print_jogo_id_nome_por_filtro("4", [row(ID, Nome, Genero, _, _, _, Preco, _)|OutrosJogos]) :-
+    getQuantidadesVendidasJogo(ID, QuantidadesVendidas),
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~nQuantidades vendidas: ~d~n', [ID, Nome, Genero, Preco, QuantidadesVendidas]),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_id_nome_por_filtro("4", OutrosJogos), !.
+print_jogo_id_nome_por_filtro("5", [row(ID, Nome, Genero, _, date(Ano, Mes, Dia), _, Preco, _)|OutrosJogos]) :-
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~nData de Lançamento: ~w-~w-~w~n', [ID, Nome, Genero, Preco, Ano, Mes, Dia]),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_id_nome_por_filtro("5", OutrosJogos), !.
+print_jogo_id_nome_por_filtro("6", [row(ID, Nome, Genero, _, _, Avaliacao, Preco, _)|OutrosJogos]) :-
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nPreço: ~2f~nAvaliação: ~1f~n', [ID, Nome, Genero, Preco, Avaliacao]),
+    writeln('--------------------------------------------------------------------------------'),
+    print_jogo_id_nome_por_filtro("6", OutrosJogos), !.
+
 
 printJogoDetalhadoAdm(row(ID, Nome, Genero, Descricao, date(Ano, Mes, Dia), Avaliacao, Preco, Visibilidade)) :-
     converteVisibilidade(Visibilidade, VisibilidadeConvertida),
@@ -245,6 +298,8 @@ getAvaliacaoByGameIDUserId(Connection, JogoID, UserID, Nota) :-
 registrarAvaliacao(Connection, JogoID, UserID, Nota) :-
     Q = "UPDATE compra SET avaliacao_compra = %w WHERE game_id = %w and user_id = %w",
     db_parameterized_query_no_return(Connection, Q, [Nota, JogoID, UserID]).
+
+
 
 checkJogoEstaFavoritado(Connection, JogoID, UserID, EstaFavoritado) :-
     Q = "SELECT favoritar_jogo FROM compra WHERE user_id = %w and game_id = %w",
@@ -274,5 +329,5 @@ registrarDenuncia(Connection, UserID, JogoID, Motivo, Descricao) :-
     format_time(string(Txt),'%FT%T%z',TStamp),
     split_string(Txt, "T", "", DataSplitada),
     nth0(0, DataSplitada, DataFormatada),
-    Q = "INSERT INTO denuncia(id_usuario, id_jogo, denuncia_motivo, denuncia_descricao, denuncia_data) VALUES (%w, %w, %w, %w, %w)",
+    Q = "INSERT INTO denuncia(id_usuario, id_jogo, denuncia_motivo, denuncia_descricao, denuncia_data) VALUES (%w, %w, '%w', '%w', '%w')",
     db_parameterized_query_no_return(Connection, Q, [UserID, JogoID, Motivo, Descricao, DataFormatada]).

@@ -25,7 +25,7 @@ menuAdmin :-
      Opcao == "4" -> limparTela, apagarJogo;
      Opcao == "5" -> limparTela, exibirDenuncia;
      Opcao == "6" -> limparTela, dashboard;
-     Opcao == "7" -> limparTela, menuInicial;
+     Opcao == "7" -> limparTela;
      limparTela, writeln('Opcao invalida, por favor, tente novamente'), menuAdmin).
 
 cadastraJogo :-
@@ -81,7 +81,7 @@ converteGenero(_, _) :- limparTela, writeln("Opção inválida, tente novamente.
 exibirJogo :-
     get_connection(Connection),
     getJogosAdm(Connection, Jogos),
-    printJogosIdNome(Jogos),
+    printJogosIdNome("1", Jogos),
     write("Digite o id do jogo que deseja exibir as informacoes: "),
     read_line_to_string(user_input, IdJogo),
     (
@@ -98,7 +98,7 @@ exibirJogo :-
 apagarJogo:-
     get_connection(Connection),
     getJogosAdm(Connection, Jogos),
-    printJogosIdNome(Jogos),
+    printJogosIdNome("1", Jogos),
     write("Digite o id do jogo que deseja apagar: "),
     read_line_to_string(user_input, IdJogo),
     (
@@ -131,7 +131,7 @@ apagarJogoBD(Connection, IdJogo):-
 atualizarJogo :-
     get_connection(Connection),
     getJogosAdm(Connection, Jogos),
-    printJogosIdNome(Jogos),
+    printJogosIdNome("1", Jogos),
     write("Digite o id do jogo que deseja atualizar: "),
     read_line_to_string(user_input, IdJogo),
         (
@@ -312,12 +312,13 @@ dashboard :-
     write('Escolha uma opção: '),
     read_line_to_string(user_input, Opcao),
     writeln(''),
-    (Opcao == "1" -> (existeAlgumJogoVendido(Connection) -> limparTela, getJogosMaisVendidos(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+    (Opcao == "1" -> ((existeAlgumJogoVendido(Connection) -> limparTela, getJogosMaisVendidos(Connection, Jogos), printJogosIdNome("4", Jogos), menuAdmin);
     limparTela, writeln('Nenhuma venda foi realizada ainda!'), menuAdmin);
-     Opcao == "2" -> limparTela, getJogosOrderByRatingAdm(Connection,Jogos), printJogosIdNome(Jogos), menuAdmin;
-     Opcao == "3" -> limparTela, getJogosOrderByBiggestPriceAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
-     Opcao == "4" -> limparTela, getJogosOrderByPriceAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
-     Opcao == "5" -> limparTela, getJogosOrderByDateAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
-     Opcao == "6" -> limparTela, getJogosOrderByNameAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+     Opcao == "2" -> limparTela, getJogosOrderByRatingAdm(Connection,Jogos), printJogosIdNome("6", Jogos), menuAdmin;
+     Opcao == "3" -> limparTela, getJogosOrderByBiggestPriceAdm(Connection, Jogos), printJogosIdNome("2", Jogos), menuAdmin;
+     Opcao == "4" -> limparTela, getJogosOrderByPriceAdm(Connection, Jogos), printJogosIdNome("2", Jogos), menuAdmin;
+     Opcao == "5" -> limparTela, getJogosOrderByDateAdm(Connection, Jogos), printJogosIdNome("5", Jogos), menuAdmin;
+     Opcao == "6" -> limparTela, getJogosOrderByNameAdm(Connection, Jogos), printJogosIdNome("1", Jogos), menuAdmin;
      Opcao == "7" -> limparTela, menuAdmin;
      limparTela, writeln('Opcao invalida, por favor, tente novamente'), dashboard).
+

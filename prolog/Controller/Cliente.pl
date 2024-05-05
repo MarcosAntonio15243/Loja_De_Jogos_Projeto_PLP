@@ -75,7 +75,7 @@ opcaoJogosDisponiveis("1") :-
     get_connection(Connection),
     getJogosOrderByName(Connection, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("1", Jogos), !.
 opcaoJogosDisponiveis("2") :-
     writeln("================================================================================"),
     write("Gêneros: "),
@@ -90,7 +90,7 @@ opcaoJogosDisponiveis("2") :-
     write("Jogos filtrados por: "), ansi_format([fg(blue)], '~w', [GeneroFiltrado]), writeln(""),
     getJogosByGender(Connection, Genero, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("2", Jogos), !.
 opcaoJogosDisponiveis("3") :-
     limparTela,
     writeln("Opções: "),
@@ -110,21 +110,21 @@ opcaoJogosDisponiveis("4") :-
     get_connection(Connection),
     getJogosMaisVendidos(Connection, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("4", Jogos), !.
 opcaoJogosDisponiveis("5") :-
     limparTela,
     write("Jogos filtrados por: "), ansi_format([fg(blue)], '~w', ["Lançados Recentemente"]), writeln(""),
     get_connection(Connection),
     getJogosOrderByDate(Connection, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("5", Jogos), !.
 opcaoJogosDisponiveis("6") :-
     limparTela,
     write("Jogos filtrados por: "), ansi_format([fg(blue)], '~w', ["Melhor Avaliados"]), writeln(""),
     get_connection(Connection),
     getJogosOrderByRating(Connection, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("6", Jogos), !.
 opcaoJogosDisponiveis("7") :-
     limparTela,
     exibeMenuCliente, !.
@@ -148,14 +148,14 @@ filtroPreco("1") :-
     get_connection(Connection),
     getJogosOrderByPrice(Connection, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("2", Jogos), !.
 filtroPreco("2") :-
     limparTela,
     write("Jogos filtrados por: "), ansi_format([fg(blue)], '~w', ["Maior Preço"]), writeln(""),
     get_connection(Connection),
     getJogosOrderByBiggestPrice(Connection, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("2", Jogos), !.
 filtroPreco("3") :-
     writeln("Digite um preço máximo: "),
     read_line_to_string(user_input, PrecoMaximo),
@@ -165,7 +165,7 @@ filtroPreco("3") :-
     get_connection(Connection),
     getJogosUntilOnePrice(Connection, PrecoMaximo, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("2", Jogos), !.
 filtroPreco("4") :-
     writeln("Digite um preço mínimo: "),
     read_line_to_string(user_input, PrecoMaximo),
@@ -175,7 +175,7 @@ filtroPreco("4") :-
     get_connection(Connection),
     getJogosMinimumPrice(Connection, PrecoMaximo, Jogos),
     close_connection(Connection),
-    exibeJogos(Jogos), !.
+    exibeJogos("2", Jogos), !.
 /* Caso o filtro por preço escolhido, seja inválido exibe a mensagem de erro e volta aos filtros */
 filtroPreco(_) :-
     limparTela,
@@ -183,12 +183,12 @@ filtroPreco(_) :-
     jogosDisponiveis, !.
 
 /* Exibe todos os jogos de acordo com um filtro selecionado anteriormente */
-exibeJogos([]) :-
+exibeJogos(_, []) :-
     limparTela,
     printColorido("Nenhum jogo encontrado para esse filtro.", yellow),
     jogosDisponiveis, !.
-exibeJogos(Jogos) :-
-    print_jogos(Jogos),
+exibeJogos(Filtro, Jogos) :-
+    print_jogos(Filtro, Jogos),
     writeln("Digite um ID para ver os detalhes do jogo (ou tecle ENTER para sair):"),
     read_line_to_string(user_input, JogoID),
     limparTela,
@@ -449,8 +449,8 @@ acessarJogo(UserID, JogoID) :-
     
     (   Opcao = "1" -> avaliarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
         Opcao = "2" -> favoritarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
-        Opcao = "3" -> comentarJogo(UserID, JogoID), acessarJogo;
-        Opcao = "4" -> denunciarJogo(JogoID, UserID), acessarJogo(UserID, JogoID);
+        Opcao = "3" -> comentarJogo(UserID, JogoID);
+        Opcao = "4" -> denunciarJogo(UserID, JogoID), acessarJogo(UserID, JogoID);
         Opcao = "5" -> jogosCliente(UserID);
         printColorido('Opção inválida.', red)
     ).
@@ -460,27 +460,49 @@ avaliarJogo(UserID, JogoID) :-
     writeln('================================================================================'),
     writeln('Insira uma nota de 0 a 10 > '),
 
-    read(Nota),
-    (   number(Nota),
-        0 =< Nota,
-        Nota =< 10 
-        
+    read_line_to_string(user_input, NotaString),
+    atom_codes(Atom, NotaString), 
+    atom_number(Atom, Nota),
+    limparTela,
+    (   number(Nota), 0 =< Nota, Nota =< 10 
         -> (    
-                get_connection(Connection),
-                registrarAvaliacao(Connection, JogoID, UserID, Nota),
-                close_connection(Connection),
-                limparTela,
-                writeln('================================================================================'),
-                writeln('                         Jogo avaliado com sucesso                              '),
-                writeln('================================================================================')
+               efetuarAvaliacao(UserID, JogoID, Nota)
             )
         
         ;  (
-                limparTela,
                 printColorido('Entrada inválida. Por favor, insira um valor dentro da faixa', red),
                 avaliarJogo(UserID, JogoID)
             )
     ).
+
+efetuarAvaliacao(UserID, JogoID, Avaliacao) :-
+    get_connection(Connection),
+    getAvaliacaoByGameIDUserId(Connection, JogoID, UserID, OldAvaliacao),
+    OldAvaliacao = [row(OldNota)],
+    (
+        OldNota =:= -1 ->
+            registrarAvaliacao(Connection, JogoID, UserID, Avaliacao),
+            writeln('================================================================================'),
+            writeln('                         Jogo avaliado com sucesso                              '),
+            writeln('================================================================================')
+        ;
+            writeln('OPS, parece que você ja avaliou este jogo anteriormente'),
+            format('Essa é sua avaliação atual: Nota ~d~n', [OldNota]),
+            writeln('Deseja alterá-la (y/n)? '),
+            read_line_to_string(user_input, Opcao),
+            string_lower(Opcao, LowerOpcao),
+            limparTela,
+            (
+                LowerOpcao = "y" ->
+                    registrarAvaliacao(Connection, JogoID, UserID, Avaliacao),
+                    writeln('================================================================================'),
+                    writeln('                         Jogo avaliado com sucesso                              '),
+                    writeln('================================================================================')
+                ;
+                    printColorido('Atualização de Avaliação cancelada.', yellow)
+            )
+    ),
+    close_connection(Connection).
 
 favoritarJogo(UserID, JogoID) :-
     get_connection(Connection),
@@ -522,10 +544,11 @@ comentarJogo(UserID, JogoID) :-
             get_connection(Connection),
             registrarComentario(Connection, UserID, JogoID, Comentario),
             close_connection(Connection),
-            printColorido("Comentário registrado com sucesso!", green)
+            printColorido("Comentário registrado com sucesso!", green),
+            acessarJogo(UserID, JogoID)
     ).
 
-denunciarJogo(JogoID, UserID) :-
+denunciarJogo(UserID, JogoID) :-
     writeln('================================================================================'),
     writeln('                                  Denúncia                                      '),
     writeln('================================================================================'),
@@ -540,60 +563,52 @@ denunciarJogo(JogoID, UserID) :-
     writeln(''),
     writeln('================================================================================'),
     writeln('Selecione o motivo da denúncia > '),
-
-    read_line_to_string(user_input, Opcao),
+    read_line_to_string(user_input, Motivo),
+    writeln('Dê uma descrição da denúncia > '),
+    read_line_to_string(user_input, Descricao),
     limparTela,
+    escolherDenuncia(Motivo, UserID, JogoID, Descricao).
 
-    escolherDenuncia(Opcao, JogoID, UserID).
-
-escolherDenuncia("1", JogoID, UserID) :-
+escolherDenuncia("1", UserID, JogoID, Descricao) :-
     get_connection(Connection),
-    registrarDenuncia(JogoID, UserID, "Não funciona/possui algum problema crítico"),
+    registrarDenuncia(Connection, UserID, JogoID, "Não funciona/possui algum problema crítico", Descricao),
     close_connection(Connection),
-    printColorido("Denúncia registrada com sucesso", green),
-    acessarJogo(UserID, JogoID).
+    printColorido("Denúncia registrada com sucesso", green), !.
 
-escolherDenuncia("2", JogoID, UserID) :-
+escolherDenuncia("2", UserID, JogoID, Descricao) :-
     get_connection(Connection),
-    registrarDenuncia(JogoID, UserID, "Contém vírus/malwares"),
+    registrarDenuncia(Connection, UserID, JogoID, "Contém vírus/malwares", Descricao),
     close_connection(Connection),
-    printColorido("Denúncia registrada com sucesso", green),
-    acessarJogo(UserID, JogoID).
+    printColorido("Denúncia registrada com sucesso", green), !.
 
-escolherDenuncia("3", JogoID, UserID) :-
+escolherDenuncia("3", UserID, JogoID, Descricao) :-
     get_connection(Connection),
-    registrarDenuncia(JogoID, UserID, "Viola leis judiciais"),
+    registrarDenuncia(Connection, UserID, JogoID, "Viola leis judiciais", Descricao),
     close_connection(Connection),
-    printColorido("Denúncia registrada com sucesso", green),
-    acessarJogo(UserID, JogoID).
+    printColorido("Denúncia registrada com sucesso", green), !.
 
-escolherDenuncia("4", JogoID, UserID) :-
+escolherDenuncia("4", UserID, JogoID, Descricao) :-
     get_connection(Connection),
-    registrarDenuncia(JogoID, UserID, "Conteúdo adulto não classificado"),
+    registrarDenuncia(Connection, UserID, JogoID, "Conteúdo adulto não classificado", Descricao),
     close_connection(Connection),
-    printColorido("Denúncia registrada com sucesso", green),
-    acessarJogo(UserID, JogoID).
+    printColorido("Denúncia registrada com sucesso", green), !.
 
-escolherDenuncia("5", JogoID, UserID) :-
+escolherDenuncia("5", UserID, JogoID, Descricao) :-
     get_connection(Connection),
-    registrarDenuncia(JogoID, UserID, "Fraude"),
+    registrarDenuncia(Connection, UserID, JogoID, "Fraude", Descricao),
     close_connection(Connection),
-    printColorido("Denúncia registrada com sucesso", green),
-    acessarJogo(UserID, JogoID).
+    printColorido("Denúncia registrada com sucesso", green), !.
 
-escolherDenuncia("6", JogoID, UserID) :-
+escolherDenuncia("6", UserID, JogoID, Descricao) :-
     get_connection(Connection),
-    registrarDenuncia(JogoID, UserID, "Outros"),
+    registrarDenuncia(Connection, UserID, JogoID, "Outros", Descricao),
     close_connection(Connection),
-    printColorido("Denúncia registrada com sucesso", green),
-    acessarJogo(UserID, JogoID).
+    printColorido("Denúncia registrada com sucesso", green), !.
 
-escolherDenuncia("7", JogoID, UserID) :-
-    acessarJogo(UserID, JogoID).
+escolherDenuncia("7", _, _, _) :- !.
 
-escolherDenuncia(_, JogoID, UserID) :-
-    printColorido('Opção inválida! Por favor, tente novamente.', red),
-    acessarJogo(UserID, JogoID).
+escolherDenuncia(_, _, _, _) :-
+    printColorido('Opção inválida! Por favor, tente novamente.', red).
 
 carteiraCliente :-
     get_connection(Connection),
