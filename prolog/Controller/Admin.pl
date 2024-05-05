@@ -23,8 +23,10 @@ menuAdmin :-
      Opcao == "2" -> limparTela, exibirJogo;
      Opcao == "3" -> limparTela, atualizarJogo;
      Opcao == "4" -> limparTela, apagarJogo;
+     Opcao == "5" -> limparTela, exibirDenuncia;
      Opcao == "6" -> limparTela, dashboard;
-     Opcao == "7" -> limparTela, menuInicial).
+     Opcao == "7" -> limparTela, menuInicial;
+     limparTela, writeln('Opcao invalida, por favor, tente novamente'), menuAdmin).
 
 cadastraJogo :-
     get_connection(Connection),
@@ -78,15 +80,15 @@ converteGenero(_, _) :- limparTela, writeln("Opção inválida, tente novamente.
 
 exibirJogo :-
     get_connection(Connection),
-    getJogos(Connection, Jogos),
-    exibir_jogos(Jogos),
+    getJogosAdm(Connection, Jogos),
+    printJogosIdNome(Jogos),
     write("Digite o id do jogo que deseja exibir as informacoes: "),
     read_line_to_string(user_input, IdJogo),
     (
-        jogoExiste(Connection, IdJogo) ->
-        getJogosById(Connection, IdJogo, [Jogo|_]),
+        jogoExisteAdm(Connection, IdJogo) ->
+        getJogosByIdAdm(Connection, IdJogo, [Jogo|_]),
         limparTela,
-        print_jogo_detalhado_individual(Jogo),
+        printJogoDetalhadoAdm(Jogo),
         menuAdmin;
         limparTela,
         writeln("Nao existe nenhum jogo com esse ID, por favor, tente novamente."),
@@ -95,12 +97,12 @@ exibirJogo :-
 
 apagarJogo:-
     get_connection(Connection),
-    getJogos(Connection, Jogos),
-    exibir_jogos(Jogos),
+    getJogosAdm(Connection, Jogos),
+    printJogosIdNome(Jogos),
     write("Digite o id do jogo que deseja apagar: "),
     read_line_to_string(user_input, IdJogo),
     (
-        jogoExiste(Connection, IdJogo) ->
+        jogoExisteAdm(Connection, IdJogo) ->
         format(atom(StringFormatada), "Tem certeza que deseja apagar o jogo com o id ~w? [S/N]: ", [IdJogo]),
         write(StringFormatada),
         read_line_to_string(user_input, Option),
@@ -128,12 +130,12 @@ apagarJogoBD(Connection, IdJogo):-
 
 atualizarJogo :-
     get_connection(Connection),
-    getJogos(Connection, Jogos),
-    exibir_jogos(Jogos),
+    getJogosAdm(Connection, Jogos),
+    printJogosIdNome(Jogos),
     write("Digite o id do jogo que deseja atualizar: "),
     read_line_to_string(user_input, IdJogo),
         (
-        jogoExiste(Connection, IdJogo) ->
+        jogoExisteAdm(Connection, IdJogo) ->
         limparTela,
         atualizaNomeJogo(Connection, IdJogo),
         atualizaDescricaoJogo(Connection, IdJogo),
@@ -234,6 +236,66 @@ analisaPrecoNovoJogo(Connection, PrecoNovoString, IdJogo) :-
     limparTela, atom_number(PrecoNovoString, PrecoNovo), Q = "UPDATE jogo SET game_price = '%w' WHERE game_id = '%w'",
     db_parameterized_query_no_return(Connection, Q, [PrecoNovo, IdJogo]), writeln("Preco do jogo atualizado com sucesso!").
 
+exibirDenuncia :-
+    get_connection(Connection),
+    (not(existeDenuncia(Connection)) -> limparTela, writeln('Nao existe nenhuma denuncia no momento!'), menuAdmin;
+    getDenuncia(Connection, [Denuncia]),
+    (Denuncia == [] -> limparTela, writeln('Nao existe nenhuma denuncia no momento!'), menuAdmin;
+    printDenuncia(Denuncia),
+    writeln('Com base nessa denuncia, o que deseja fazer?'),
+    writeln('|1. Excluir o Jogo'),
+    writeln('|2. Ocultar o Jogo'),
+    writeln('|3. Desconciderar denuncia'),
+    write('Escolha uma opção: '),
+    read_line_to_string(user_input, Opcao),
+    writeln(''),
+    (Opcao == "1" -> limparTela, excluirJogoDenuncia(Connection, Denuncia), writeln('Jogo apagado com sucesso'), menuAdmin;
+     Opcao == "2" -> limparTela, ocultaJogoDenuncia(Connection, Denuncia), writeln('Jogo ocultado com sucesso'), menuAdmin;
+     Opcao == "3" -> limparTela, getDenunciaId(Denuncia, IdDenuncia), apagaDenuncia(Connection, IdDenuncia), ('Denuncia desconciderada!'), menuAdmin;
+     imparTela, writeln('Opcao invalida, por favor, tente novamente!'), exibirDenuncia))).
+
+excluirJogoDenuncia(Connection, Denuncia) :-
+    getJogoIdDenuncia(Denuncia, IdJogo), 
+    getDenunciaId(Denuncia, IdDenuncia),
+    apagarJogoBD(Connection, IdJogo), 
+    apagaDenuncia(Connection, IdDenuncia).
+
+ocultaJogoDenuncia(Connection, Denuncia) :-
+    getJogoIdDenuncia(Denuncia, IdJogo), 
+    getDenunciaId(Denuncia, IdDenuncia),
+    ocultaJogo(Connection, IdJogo),
+    apagaDenuncia(Connection, IdDenuncia).
+
+printDenuncia([]).
+
+printDenuncia(row(IdDenuncia, IdUsuario, IdJogo, Motivo, Descricao, date(Ano, Mes, Dia))) :-
+    writeln("================================================================================"),
+    writeln("                             INFORMACOES DENUNCIA                               "),
+    writeln("================================================================================"),
+    format('ID da Denuncia : ~d~nID do Usuario: ~d~nID do Jogo: ~d~nMotivo: ~w~nDescricao: ~w~nData da denuncia: ~d/~d/~d~n', [IdDenuncia, IdUsuario, IdJogo, Motivo, Descricao, Dia, Mes, Ano]),
+    writeln("================================================================================").
+
+getDenuncia(Connection, Denuncia) :-
+    Q = "SELECT * FROM  denuncia LIMIT 1",
+    db_query(Connection, Q, Denuncia).
+
+getDenunciaId(row(IdDenuncia, _, _, _, _, _), IdDenuncia).
+
+getJogoIdDenuncia(row(_, _, IdJogo, _, _ ,_), IdJogo).
+
+ocultaJogo(Connection, IdJogo) :-
+    Q = "UPDATE jogo SET game_visibilidade = 'false' WHERE game_id = '%w'",
+    db_parameterized_query_no_return(Connection, Q, [IdJogo]).
+
+apagaDenuncia(Connection, IdDenuncia) :-
+    Q = "DELETE FROM denuncia WHERE denuncia_id = '%w'",
+    db_parameterized_query_no_return(Connection, Q, [IdDenuncia]).
+
+existeDenuncia(Connection) :-
+    Q = "SELECT COUNT(*) FROM denuncia",
+    db_query(Connection, Q, [row(CountRow)]),
+    (CountRow > 0).
+
 dashboard :-
     get_connection(Connection),
     writeln("================================================================================"),
@@ -244,14 +306,18 @@ dashboard :-
     writeln('|3. Jogos mais caros'),
     writeln('|4. Jogos mais baratos'),
     writeln('|5. Jogos por data de lancamento'),
-    writeln('|6. Sair'),
+    writeln('|6. Jogos por ordem alfabetica'),
+    writeln('|7. Voltar para o menu'),
     writeln(''),
     write('Escolha uma opção: '),
     read_line_to_string(user_input, Opcao),
     writeln(''),
-    (Opcao == "1" -> limparTela, getJogosOrderByBiggestPrice(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
-     Opcao == "2" -> limparTela, getJogosOrderByRating(Connection,Jogos), print_jogo_detalhado(Jogos), menuAdmin;
-     Opcao == "3" -> limparTela, getJogosOrderByPrice(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
-     Opcao == "4" -> limparTela, getJogosMinimumPrice(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
-     Opcao == "5" -> limparTela, getJogosOrderByDate(Connection, Jogos), print_jogo_detalhado(Jogos), menuAdmin;
-     Opcao == "6" -> limparTela, menuAdmin).
+    (Opcao == "1" -> (existeAlgumJogoVendido(Connection) -> limparTela, getJogosMaisVendidos(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+    limparTela, writeln('Nenhuma venda foi realizada ainda!'), menuAdmin);
+     Opcao == "2" -> limparTela, getJogosOrderByRatingAdm(Connection,Jogos), printJogosIdNome(Jogos), menuAdmin;
+     Opcao == "3" -> limparTela, getJogosOrderByBiggestPriceAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+     Opcao == "4" -> limparTela, getJogosOrderByPriceAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+     Opcao == "5" -> limparTela, getJogosOrderByDateAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+     Opcao == "6" -> limparTela, getJogosOrderByNameAdm(Connection, Jogos), printJogosIdNome(Jogos), menuAdmin;
+     Opcao == "7" -> limparTela, menuAdmin;
+     limparTela, writeln('Opcao invalida, por favor, tente novamente'), dashboard).

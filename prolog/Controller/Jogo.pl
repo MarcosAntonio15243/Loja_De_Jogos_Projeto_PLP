@@ -1,15 +1,22 @@
 :- module(jogo, [
     getJogos/2,
+    getJogosAdm/2,
     getJogosById/3,
+    getJogosByIdAdm/3,
     getJogosByNome/3,
     getJogosUntilOnePrice/3,
     getJogosMinimumPrice/3,
     getJogosByGender/3,
     getJogosOrderByDate/2,
+    getJogosOrderByDateAdm/2,
     getJogosOrderByName/2,
+    getJogosOrderByNameAdm/2,
     getJogosOrderByPrice/2,
+    getJogosOrderByPriceAdm/2,
     getJogosOrderByBiggestPrice/2,
+    getJogosOrderByBiggestPriceAdm/2,
     getJogosOrderByRating/2,
+    getJogosOrderByRatingAdm/2,
     getJogosMaisVendidos/2,
     print_jogos/1,
     print_jogo/1,
@@ -17,6 +24,7 @@
     print_jogo_detalhado_individual/1,
     getPriceJogo/3,
     jogoExiste/2,
+    jogoExisteAdm/2,
     getTodosOsGeneros/2,
     print_generos/1,
     getNomeAndIDJogosCliente/3,
@@ -26,7 +34,10 @@
     favoritarJogo/3,
     desfavoritarJogo/3,
     registrarComentario/4,
-    registrarDenuncia/5
+    registrarDenuncia/5,
+    printJogosIdNome/1,
+    printJogoDetalhadoAdm/1,
+    existeAlgumJogoVendido/1
 ]).
 :- use_module("./LocalDB/ConnectionDB").
 :- use_module("./LocalDB/DatabaseOperations").
@@ -37,9 +48,17 @@ getJogos(Connection, Jogos):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true",
     db_query(Connection, Q, Jogos).
 
+getJogosAdm(Connection, Jogos) :-
+    Q = "SELECT * FROM jogo",
+    db_query(Connection, Q, Jogos).
+
 /* Busca os jogos por um ID */
 getJogosById(Connection, JogoId, Jogo):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true and game_id = %w",
+    db_parameterized_query(Connection, Q, [JogoId], Jogo).
+
+getJogosByIdAdm(Connection, JogoId, Jogo):-
+    Q = "SELECT * FROM jogo WHERE game_id = %w",
     db_parameterized_query(Connection, Q, [JogoId], Jogo).
 
 /* Busca os jogos por um nome */
@@ -67,9 +86,17 @@ getJogosOrderByDate(Connection, Jogos):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true ORDER BY game_data_lancamento DESC",
     db_query(Connection, Q, Jogos).
 
+getJogosOrderByDateAdm(Connection, Jogos):-
+    Q = "SELECT * FROM jogo ORDER BY game_data_lancamento DESC",
+    db_query(Connection, Q, Jogos).
+
 /* Busca os jogos ordenados pelo nome em ordem lexicográfica */
 getJogosOrderByName(Connection, Jogos):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true ORDER BY game_nome",
+    db_query(Connection, Q, Jogos).
+
+getJogosOrderByNameAdm(Connection, Jogos):-
+    Q = "SELECT * FROM jogo ORDER BY game_nome",
     db_query(Connection, Q, Jogos).
 
 /* Busca os jogos ordenados do menor preço até o maior preço */
@@ -77,9 +104,17 @@ getJogosOrderByPrice(Connection, Jogos):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true ORDER BY game_price",
     db_query(Connection, Q, Jogos).
 
+getJogosOrderByPriceAdm(Connection, Jogos):-
+    Q = "SELECT * FROM jogo ORDER BY game_price ASC",
+    db_query(Connection, Q, Jogos).
+
 /* Busca os jogos ordenados do maior preço até o menor preço */
 getJogosOrderByBiggestPrice(Connection, Jogos):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true ORDER BY game_price DESC",
+    db_query(Connection, Q, Jogos).
+
+getJogosOrderByBiggestPriceAdm(Connection, Jogos):-
+    Q = "SELECT * FROM jogo ORDER BY game_price DESC",
     db_query(Connection, Q, Jogos).
 
 /* Busca os jogos ordenados de acordo com a quantidade de vendas (do mais vendido ao menos vendido) */
@@ -87,9 +122,18 @@ getJogosMaisVendidos(Connection, Jogos):-
     Q = "SELECT j.* FROM jogo j JOIN compra c ON j.game_id = c.game_id GROUP BY j.game_id ORDER BY COUNT(j.game_id) DESC",
     db_query(Connection, Q, Jogos).
 
+existeAlgumJogoVendido(Connection):-
+    Q = "SELECT COUNT(*) FROM jogo j JOIN compra c ON j.game_id = c.game_id GROUP BY j.game_id ORDER BY COUNT(j.game_id) DESC",
+    db_query(Connection, Q, [row(CountRow)]),
+    (CountRow > 0).
+
 /* Busca os jogos ordenados de acordo com a avaliação (do mais avaliado ao menos avaliado) */
 getJogosOrderByRating(Connection, Jogos):-
     Q = "SELECT * FROM jogo WHERE game_visibilidade = true ORDER BY game_avaliacao DESC",
+    db_query(Connection, Q, Jogos).
+
+getJogosOrderByRatingAdm(Connection, Jogos):-
+    Q = "SELECT * FROM jogo ORDER BY game_avaliacao DESC",
     db_query(Connection, Q, Jogos).
 
 /* Busca o preço de um jogo de acordo com o seu ID */
@@ -101,6 +145,11 @@ getPriceJogo(Connection, JogoId, Preco):-
 /* Verifica se um jogo existe de acordo com o ID */
 jogoExiste(Connection, JogoId):-
     Q = "SELECT COUNT(*) FROM jogo WHERE game_visibilidade = true and game_id = %w",
+    db_parameterized_query(Connection, Q, [JogoId], [row(CountRow)]),
+    (CountRow > 0).
+
+jogoExisteAdm(Connection, JogoId):-
+    Q = "SELECT COUNT(*) FROM jogo WHERE game_id = %w",
     db_parameterized_query(Connection, Q, [JogoId], [row(CountRow)]),
     (CountRow > 0).
 
@@ -161,7 +210,33 @@ print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, 
     writeln('================================================================================'),
     format('ID: ~d~nNome: ~w~nGênero: ~w~nDescrição: ~w~nData de Lançamento: ~d/~d/~d~nAvaliação: ~1f~nPreço: ~2f~n', [ID, Nome, Genero, Descricao, Dia, Mes, Ano, Avaliacao, Preco]).
 
+printJogosIdNome([Jogo|OutrosJogos]) :-
+    writeln('================================================================================'),
+    writeln('                                 LISTA DE JOGOS                                 '),
+    writeln('================================================================================'),
+    printJogoIdNome(Jogo),
+    writeln('--------------------------------------------------------------------------------'),
+    printJogosIdNomeRest(OutrosJogos).
 
+printJogoIdNome(row(ID, Nome, _, _, _, _, _, _)) :-
+    format('ID: ~d~nNome: ~w', [ID, Nome]).
+
+printJogosIdNomeRest([Jogo|OutrosJogos]):-
+    printJogoIdNome(Jogo),
+    writeln('--------------------------------------------------------------------------------'),
+    printJogosIdNomeRest(OutrosJogos).
+
+printJogosIdNomeRest([]).
+
+printJogoDetalhadoAdm(row(ID, Nome, Genero, Descricao, date(Ano, Mes, Dia), Avaliacao, Preco, Visibilidade)) :-
+    converteVisibilidade(Visibilidade, VisibilidadeConvertida),
+    writeln('================================================================================'),
+    format('                              DETALHES DO JOGO [~d]                              ~n', [ID]),
+    writeln('================================================================================'),
+    format('ID: ~d~nNome: ~w~nGênero: ~w~nDescrição: ~w~nData de Lançamento: ~d/~d/~d~nAvaliação: ~1f~nPreço: ~2f~nVisibilidade: ~w~n', [ID, Nome, Genero, Descricao, Dia, Mes, Ano, Avaliacao, Preco, VisibilidadeConvertida]).
+
+converteVisibilidade('1', "Visivel").
+converteVisibilidade('0', "Oculto").
 
 getAvaliacaoByGameIDUserId(Connection, JogoID, UserID, Nota) :-
     Q = "SELECT avaliacao_compra FROM compra WHERE game_id = %w and user_id = %w",
