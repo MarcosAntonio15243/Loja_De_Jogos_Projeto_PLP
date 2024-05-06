@@ -212,7 +212,7 @@ exibeJogos(Filtro, Jogos) :-
             % Se o JogoID não é válido (Result = 0) então exibe a mensagem de erro e exibe a lista de mesmo filtro novamente
             (
                 printColorido("ID de jogo inválido! Por favor, tente novamente utilizando outro ID.", red),
-                exibeJogos(Jogos)
+                exibeJogos(Filtro, Jogos)
             )
         )
     ).
@@ -482,6 +482,7 @@ efetuarAvaliacao(UserID, JogoID, Avaliacao) :-
     (
         OldNota =:= -1 ->
             registrarAvaliacao(Connection, JogoID, UserID, Avaliacao),
+            atualizaAvaliacaoJogo(Connection, JogoID),
             writeln('================================================================================'),
             writeln('                         Jogo avaliado com sucesso                              '),
             writeln('================================================================================')
@@ -495,6 +496,7 @@ efetuarAvaliacao(UserID, JogoID, Avaliacao) :-
             (
                 LowerOpcao = "y" ->
                     registrarAvaliacao(Connection, JogoID, UserID, Avaliacao),
+                    atualizaAvaliacaoJogo(Connection, JogoID),
                     writeln('================================================================================'),
                     writeln('                         Jogo avaliado com sucesso                              '),
                     writeln('================================================================================')

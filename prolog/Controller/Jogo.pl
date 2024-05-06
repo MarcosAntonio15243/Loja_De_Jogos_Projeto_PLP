@@ -30,6 +30,7 @@
     getNomeAndIDJogosCliente/3,
     getAvaliacaoByGameIDUserId/4,
     registrarAvaliacao/4,
+    atualizaAvaliacaoJogo/2,
     checkJogoEstaFavoritado/4,
     favoritarJogo/3,
     desfavoritarJogo/3,
@@ -299,7 +300,11 @@ registrarAvaliacao(Connection, JogoID, UserID, Nota) :-
     Q = "UPDATE compra SET avaliacao_compra = %w WHERE game_id = %w and user_id = %w",
     db_parameterized_query_no_return(Connection, Q, [Nota, JogoID, UserID]).
 
-
+atualizaAvaliacaoJogo(Connection, JogoID) :-
+    Q = "UPDATE jogo SET game_avaliacao = (
+            SELECT AVG(avaliacao_compra) FROM compra WHERE game_id = %w
+        ) WHERE game_id = %w",
+    db_parameterized_query_no_return(Connection, Q, [JogoID, JogoID]).
 
 checkJogoEstaFavoritado(Connection, JogoID, UserID, EstaFavoritado) :-
     Q = "SELECT favoritar_jogo FROM compra WHERE user_id = %w and game_id = %w",
