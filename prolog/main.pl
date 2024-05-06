@@ -13,7 +13,7 @@
 main :-
     writeln('Iniciando database...'),
     iniciandoDatabase(Connection),
-    %limparTela,
+    limparTela,
     menuInicial,
     encerrandoDatabase(Connection),
     halt.

@@ -235,25 +235,6 @@ print_jogo_detalhado_individual(row(ID, Nome, Genero, Descricao, date(Ano, Mes, 
     writeln('================================================================================'),
     format('ID: ~d~nNome: ~w~nGênero: ~w~nDescrição: ~w~nData de Lançamento: ~d/~d/~d~nAvaliação: ~1f~nPreço: ~2f~n', [ID, Nome, Genero, Descricao, Dia, Mes, Ano, Avaliacao, Preco]).
 
-/*
-printJogosIdNome([Jogo|OutrosJogos]) :-
-    writeln('================================================================================'),
-    writeln('                                 LISTA DE JOGOS                                 '),
-    writeln('================================================================================'),
-    printJogoIdNome(Jogo),
-    writeln('--------------------------------------------------------------------------------'),
-    printJogosIdNomeRest(OutrosJogos).
-
-printJogoIdNome(row(ID, Nome, _, _, _, _, _, _)) :-
-    format('ID: ~d~nNome: ~w~n', [ID, Nome]).
-
-printJogosIdNomeRest([Jogo|OutrosJogos]):-
-    printJogoIdNome(Jogo),
-    writeln('--------------------------------------------------------------------------------'),
-    printJogosIdNomeRest(OutrosJogos).
-
-printJogosIdNomeRest([]).*/
-
 printJogosIdNome(Filtro, Jogos) :-
     writeln('================================================================================'),
     writeln('                                 LISTA DE JOGOS                                 '),
