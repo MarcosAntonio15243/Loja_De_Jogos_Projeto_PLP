@@ -251,7 +251,7 @@ exibirDenuncia :-
     writeln(''),
     (Opcao == "1" -> limparTela, excluirJogoDenuncia(Connection, Denuncia), writeln('Jogo apagado com sucesso'), menuAdmin;
      Opcao == "2" -> limparTela, ocultaJogoDenuncia(Connection, Denuncia), writeln('Jogo ocultado com sucesso'), menuAdmin;
-     Opcao == "3" -> limparTela, getDenunciaId(Denuncia, IdDenuncia), apagaDenuncia(Connection, IdDenuncia), ('Denuncia desconciderada!'), menuAdmin;
+     Opcao == "3" -> limparTela, getDenunciaId(Denuncia, IdDenuncia), apagaDenuncia(Connection, IdDenuncia), writeln('Denuncia desconciderada!'), menuAdmin;
      imparTela, writeln('Opcao invalida, por favor, tente novamente!'), exibirDenuncia))).
 
 excluirJogoDenuncia(Connection, Denuncia) :-
